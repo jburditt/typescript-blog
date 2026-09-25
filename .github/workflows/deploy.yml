@@ -51,29 +51,10 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          down_exit_code=0
-          resource_group_exists="$(az group exists --name "$AZURE_RESOURCE_GROUP" --output tsv)"
-          down_log="$(mktemp)"
-
-          cleanup() {
-            rm -f "$down_log"
-          }
-
-          trap cleanup EXIT
-
-          if ! azd down --force --purge 2>&1 | tee "$down_log"; then
-            down_exit_code=${PIPESTATUS[0]}
+          if [[ "$(az group exists --name "$AZURE_RESOURCE_GROUP" --output tsv)" == "true" ]]; then
+            azd down --force --purge
+            ./scripts/delete-resource-group.sh
+          else
+            echo "Resource group $AZURE_RESOURCE_GROUP is already absent; removing the azd environment state."
+            azd env remove "$AZURE_ENV_NAME" --force
           fi
-
-          if [[ "$down_exit_code" -ne 0 ]] &&
-            [[ "$resource_group_exists" != "true" ]] &&
-            grep -Eiq "ResourceGroupNotFound|resource group .*$AZURE_RESOURCE_GROUP.*(could not be found|was not found|not found)" "$down_log"; then
-            echo "Resource group $AZURE_RESOURCE_GROUP was already absent before azd down; ignoring the missing-resource-group teardown error after the purge attempt."
-            down_exit_code=0
-          fi
-
-          if [[ "$down_exit_code" -ne 0 ]]; then
-            exit "$down_exit_code"
-          fi
-
-          ./scripts/delete-resource-group.sh
