@@ -1,0 +1,46 @@
+name: Deploy Static Web App
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      action:
+        description: 'up (provision + deploy) or down (destroy)'
+        required: true
+        default: 'up'
+        type: choice
+        options: [up, down]
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  azd:
+    runs-on: ubuntu-latest
+    env:
+      AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+      AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+      AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+      AZURE_ENV_NAME: typescript-blog
+      AZURE_LOCATION: eastus2
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+
+      - uses: Azure/setup-azd@v2
+
+      - name: Log in with federated credentials
+        run: azd auth login --client-id "$AZURE_CLIENT_ID" --federated-credential-provider "github" --tenant-id "$AZURE_TENANT_ID"
+
+      - name: Deploy
+        if: github.event_name == 'push' || inputs.action == 'up'
+        run: azd up --no-prompt
+
+      - name: Destroy
+        if: inputs.action == 'down'
+        run: azd down --force --purge

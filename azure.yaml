@@ -1,0 +1,18 @@
+name: typescript-blog
+metadata:
+  template: static-web-app@0.1.0
+
+infra:
+  provider: bicep
+  path: infra
+
+services:
+  web:
+    project: .
+    language: js
+    host: staticwebapp
+    dist: dist
+    hooks:
+      prepackage:
+        shell: sh
+        run: npm run build

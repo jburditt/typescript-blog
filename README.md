@@ -111,3 +111,5 @@ The sidecar JSON must use route `/page/<basename>`.
 - Add TypeScript skills
 - Add AI category and tag relevant blogs
 - Deploy to Azure static web app, preferably using Terraform or similar
+- Add the ability to link/preview OneDrive files
+- Consider moving the markdown and html files to OneDrive, which would require syncing folders
