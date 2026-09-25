@@ -9,7 +9,9 @@
     "compile": "tsc -p tsconfig.json",
     "build": "npm run clean && npm run compile && node .build/src/build.js",
     "verify": "npm run test && npm run build",
-    "build:once": "npm run compile && node .build/src/build.js"
+    "build:once": "npm run compile && node .build/src/build.js",
+    "serve": "node .build/src/serve.js",
+    "preview": "npm run build && npm run serve"
   },
   "keywords": [],
   "author": "",

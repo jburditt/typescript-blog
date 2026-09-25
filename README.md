@@ -27,6 +27,14 @@ npm --prefix projects/typescript-blog run verify
 
 `verify` runs the focused test suite and then performs a full static build.
 
+## Local preview
+
+```bash
+npm --prefix projects/typescript-blog run preview
+```
+
+Opening `dist/index.html` directly via `file://` shows a raw directory listing for friendly URLs like `/blog/<id>/`, because browsers don't resolve `index.html` for directories without a server. `preview` builds the site and serves `dist/` over HTTP on `http://localhost:5173/` (override with the `PORT` env var), resolving friendly URLs to their `index.html` without redirecting. Use `npm run serve` to serve an existing `dist/` without rebuilding.
+
 ## Output structure
 
 ```text
@@ -102,3 +110,4 @@ The sidecar JSON must use route `/page/<basename>`.
 - Add best practices instructions and documentation
 - Add TypeScript skills
 - Add AI category and tag relevant blogs
+- Deploy to Azure static web app, preferably using Terraform or similar
