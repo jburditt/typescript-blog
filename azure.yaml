@@ -2,9 +2,19 @@ name: typescript-blog
 metadata:
   template: static-web-app@0.1.0
 
+resourceGroup: rg-typescript-blog
+
 infra:
   provider: bicep
   path: infra
+
+hooks:
+  preprovision:
+    shell: sh
+    run: ./scripts/ensure-resource-group.sh
+  postdown:
+    shell: sh
+    run: ./scripts/delete-resource-group.sh
 
 services:
   web:

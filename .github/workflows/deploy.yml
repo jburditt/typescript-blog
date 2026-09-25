@@ -25,6 +25,7 @@ jobs:
       AZURE_SUBSCRIPTION_ID: ${{ vars.AZURE_SUBSCRIPTION_ID }}
       AZURE_ENV_NAME: typescript-blog
       AZURE_LOCATION: westus2
+      AZURE_RESOURCE_GROUP: rg-typescript-blog
     steps:
       - uses: actions/checkout@v4
 
@@ -43,8 +44,33 @@ jobs:
 
       - name: Deploy
         if: github.event_name == 'push' || inputs.action == 'up'
-        run: azd up --no-prompt
+        shell: bash
+        run: |
+          set -euo pipefail
+          ./scripts/ensure-resource-group.sh
+          azd up --no-prompt
 
       - name: Destroy
         if: inputs.action == 'down'
-        run: azd down --force --purge
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ "$(az group exists --name "$AZURE_RESOURCE_GROUP" --output tsv)" == "true" ]]; then
+            azd down --force --purge
+            ./scripts/delete-resource-group.sh
+          else
+            unexpected_resource_ids="$(
+              azd env get-values --environment "$AZURE_ENV_NAME" |
+                grep '^SERVICE_.*_RESOURCE_ID=' |
+                grep -vi "/resourceGroups/$AZURE_RESOURCE_GROUP/" || true
+            )"
+
+            if [[ -n "$unexpected_resource_ids" ]]; then
+              echo "Refusing to remove azd environment state because it references resources outside $AZURE_RESOURCE_GROUP:" >&2
+              echo "$unexpected_resource_ids" >&2
+              exit 1
+            fi
+
+            echo "Resource group $AZURE_RESOURCE_GROUP is already absent and the azd environment only references resources under it; removing the azd environment state."
+            azd env remove "$AZURE_ENV_NAME" --force
+          fi

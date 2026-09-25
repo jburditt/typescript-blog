@@ -35,6 +35,16 @@ output staticWebAppHostname string = staticWebApp.properties.defaultHostname
 **`azure.yaml`** is the `azd` project file. It points at the compiled `dist/` output and runs the project's own build before packaging:
 
 ```yaml
+resourceGroup: rg-typescript-blog
+
+hooks:
+  preprovision:
+    shell: sh
+    run: ./scripts/ensure-resource-group.sh
+  postdown:
+    shell: sh
+    run: ./scripts/delete-resource-group.sh
+
 services:
   web:
     project: .
@@ -51,25 +61,29 @@ services:
 
 1. `azd auth login`
 2. `azd env new typescript-blog`
-3. `azd up` — provisions the Static Web App from `infra/main.bicep` and deploys the current build
+3. `azd up` — creates or reuses `rg-typescript-blog`, provisions the Static Web App from `infra/main.bicep`, and deploys the current build
 
 ## Everyday workflow
 
-- `azd up` — redeploy after content changes; recreates the resource if it was torn down
-- `azd down --purge` — delete the resource entirely to stop paying for it between updates
+- `azd up` — redeploy after content changes; reuses or recreates `rg-typescript-blog` as needed
+- `azd down --purge` — tear down the app and then delete `rg-typescript-blog` entirely to stop paying for it between updates
 - `azd up` again later — same Bicep template, same parameters, a fresh Static Web App with the latest build
 
 ## CI
 
-`azd pipeline config` wires up GitHub OIDC federated credentials automatically, so CI never needs a stored client secret. The workflow then just runs `azd up` on push, or `azd down --force --purge` on demand:
+`azd pipeline config` wires up GitHub OIDC federated credentials automatically, so CI never needs a stored client secret. The workflow ensures `rg-typescript-blog` exists before `azd up`, and on destroy it tears down the app and then deletes that resource group:
 
 ```yaml
 - name: Deploy
-  run: azd up --no-prompt
+  run: |
+    ./scripts/ensure-resource-group.sh
+    azd up --no-prompt
 
 - name: Destroy
   if: inputs.action == 'down'
-  run: azd down --force --purge
+  run: |
+    azd down --force --purge
+    ./scripts/delete-resource-group.sh
 ```
 
 ### `azd pipeline config` walkthrough

@@ -35,6 +35,14 @@ npm --prefix projects/typescript-blog run preview
 
 Opening `dist/index.html` directly via `file://` shows a raw directory listing for friendly URLs like `/blog/<id>/`, because browsers don't resolve `index.html` for directories without a server. `preview` builds the site and serves `dist/` over HTTP on `http://localhost:5173/` (override with the `PORT` env var), resolving friendly URLs to their `index.html` without redirecting. Use `npm run serve` to serve an existing `dist/` without rebuilding.
 
+## Azure deployment
+
+The `azd` project is pinned to the Azure resource group `rg-typescript-blog`.
+
+- `azd up` reuses that resource group when it already exists and creates it first when it does not.
+- `azd down` tears down the application resources and then deletes `rg-typescript-blog`.
+- `.github/workflows/deploy.yml` applies the same lifecycle non-interactively for CI deploy and destroy runs.
+
 ## Output structure
 
 ```text
