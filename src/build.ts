@@ -51,7 +51,7 @@ async function build(): Promise<void> {
       renderLayout({
         route: blog.route,
         assetPrefix: getAssetPrefix(blog.route),
-        pageTitle: `${blog.title} | Fullswing TypeScript Blog`,
+        pageTitle: `${blog.title} | Blog`,
         title: blog.title,
         author: blog.author,
         date: blog.dateValue,
@@ -69,7 +69,7 @@ async function build(): Promise<void> {
       renderLayout({
         route: page.route,
         assetPrefix: getAssetPrefix(page.route),
-        pageTitle: `${page.title} | Fullswing TypeScript Blog`,
+        pageTitle: `${page.title} | Blog`,
         title: page.title,
         author: page.author,
         date: page.dateValue,
@@ -85,8 +85,8 @@ async function build(): Promise<void> {
     renderLayout({
       route: '/',
       assetPrefix: getAssetPrefix('/'),
-      pageTitle: 'Fullswing TypeScript Blog',
-      title: 'Fullswing TypeScript Blog',
+      pageTitle: 'Blog',
+      title: 'Blog',
       content: renderHomePage(repository),
     })
   );
@@ -97,7 +97,7 @@ async function build(): Promise<void> {
     renderLayout({
       route: '/sitemap',
       assetPrefix: getAssetPrefix('/sitemap'),
-      pageTitle: 'Sitemap | Fullswing TypeScript Blog',
+      pageTitle: 'Sitemap | Blog',
       title: 'Sitemap',
       content: renderSitemapPage(repository),
     })

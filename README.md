@@ -103,6 +103,7 @@ The sidecar JSON must use route `/page/<basename>`.
 - Prism-based syntax highlighting
 - Server-rendered line numbers and line highlighting for fenced code blocks using info-string directives such as `line=2-4 lineOffset=10`
 - Minimal client-side category filtering and copy-to-clipboard behavior
+- Header social navigation uses accessible GitHub and LinkedIn SVG icons with lighter resting fills and darker hover/focus states
 - Mermaid extension point: Mermaid blocks render as `<pre class="mermaid">...</pre>`, and `assets/site.js` will auto-run `window.mermaid.run(...)` when Mermaid is present or expose `window.typescriptBlog.enhanceMermaid(...)` for custom enhancement
 
 ## Limitations
@@ -128,4 +129,4 @@ The sidecar JSON must use route `/page/<basename>`.
 - Deploy to Azure static web app, preferably using Terraform or similar
 - Add the ability to link/preview OneDrive files
 - Consider moving the markdown and html files to OneDrive, which would require syncing folders
-- Remove "Sitemap" or "Home", since they both do the same thing
+- Remove category "Bicep" and replace with Azure
