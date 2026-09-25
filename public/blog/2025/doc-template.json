@@ -1,5 +1,5 @@
 {
-  "route": "/blog/2025/doc-template",
+  "route": "/blog/doc-template",
   "title": "Documentation Template",
   "categories": ["Document", "TypeScript"],
   "author": "Jebb Burditt",

@@ -101,3 +101,4 @@ The sidecar JSON must use route `/page/<basename>`.
 - Add unit and Playwright tests with Axe
 - Add best practices instructions and documentation
 - Add TypeScript skills
+- Add AI category and tag relevant blogs
