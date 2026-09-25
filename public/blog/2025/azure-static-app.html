@@ -1,0 +1,41 @@
+Setting up a new Azure static web app with CI is fairly straight-forward. For a standard Angular application, follow step one and you are done. If you are deploying an application from a workspace:
+
+<h2>Instructions</h2>
+
+<ol>
+  <li>Follow the <a href="https://learn.microsoft.com/en-us/azure/static-web-apps/deploy-angular?pivots=github">Microsoft Documentation</a> instructions</li>
+  <li>
+      Update the Github action workflow NodeJs version, since the existing version 18 will not work with Azure.
+      <fs-code [line]="'25-27'" [lineOffset]="20">
+        ```yaml
+        steps:
+          - uses: actions/checkout@v3
+            with:
+              submodules: true
+              lfs: false
+          - uses: actions/setup-node@v3
+            with:
+              node-version: '20.x'
+        ```
+      </fs-code>
+  </li>
+  <li>
+    Update the Github action workflow build command.
+    <fs-code [line]="'46-50'" [lineOffset]="38" ngNonBindable>
+      ```yaml
+      - name: Build And Deploy
+        id: builddeploy
+        uses: Azure/static-web-apps-deploy@v1
+        with:
+          azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_BLUE_SMOKE_0EEFAF11E }}
+          action: "upload"
+          ###### Repository/Build Configurations - These values can be configured to match your app requirements. ######
+          # For more information regarding Static Web App workflow configurations, please visit: https://aka.ms/swaworkflowconfig
+          app_location: "/" # App source code path
+          api_location: "" # Api source code path - optional
+          output_location: "dist/fullswing-blog/browser" # Built app content directory - optional
+          app_build_command: "npm run build fullswing-blog --configuration=production"
+      ```
+    </fs-code>
+  </li>
+</ol>

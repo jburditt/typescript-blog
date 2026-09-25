@@ -1,0 +1,53 @@
+Today, I set out to set up a basic headless Angular blog with minimal features. I wanted it to be fast and lightweight, but still have the power of Angular components.
+The end product was an static generated Angular app that supports markdown, code syntax highlighting, mermaid diagrams, and comments. There is no content management,
+instead, you add markdown files.
+
+<h2>Features</h2>
+<ul>
+  <li>Blog content using markdown files for basic content</li>
+  <li>Blog content using succint Angular pages for advanced content</li>
+  <li>Markdown package supports markdown, line numbers and highlighting, command line, mermaid diagrams, and emojis</li>
+  <li>Add code snippets directly from your open source GitHub</li>
+</ul>
+
+<h2>Optional features</h2>
+<ul>
+  <li>Static Site Generation</li>
+  <li>Zoneless</li>
+  <li>Markdown</li>
+  <li>Comments</li>
+</ul>
+
+<h2>Installation</h2>
+<ol>
+  <li>Create a new a new standalone Angular application `ng new angular-blog`. I suggest enabling static site generation (SSG/SSR) and zoneless, to keep your blog lightweight and fast.</li>
+  <li>Follow the steps here to install [ngx-markdown](https://www.npmjs.com/package/ngx-markdown).</li>
+  <li>Edit app.html to be your template used for all your pages and blogs.
+    <fs-code [title]="'app.html'" [src]="'https://raw.githubusercontent.com/jburditt/fullswing-angular-library/refs/heads/main/projects/fullswing-blog/src/app/app.html'" />
+    <fs-code [title]="'app.ts'" [src]="'https://raw.githubusercontent.com/jburditt/fullswing-angular-library/refs/heads/main/projects/fullswing-blog/src/app/app.ts'" />
+    <fs-code [title]="'app.css'" [src]="'https://raw.githubusercontent.com/jburditt/fullswing-angular-library/refs/heads/main/projects/fullswing-blog/src/app/app.css'" />
+  </li>
+  <li>Create blog.component `ng generate component src/app/blog`
+    <fs-code [title]="'blog.html'" [src]="'https://raw.githubusercontent.com/jburditt/fullswing-angular-library/refs/heads/main/projects/fullswing-blog/src/app/blog/blog.html'" />
+    <fs-code [title]="'blog.ts'" [src]="'https://raw.githubusercontent.com/jburditt/fullswing-angular-library/refs/heads/main/projects/fullswing-blog/src/app/blog/blog.ts'" />
+  </li>
+  <li>(optional) Install Disqus for commenting `npm i ngx-disqus --force`. Follow the instructions to setup a new site on [Disqus](www.disqus.com) and [ngx-disqus](https://github.com/MurhafSousli/ngx-disqus).</li>
+</ol>
+
+<h2>How to add content</h2>
+<ol>
+  <li>Add a markdown file to the '/public/blog/' folder.</li>
+  <li>Add an item to 'app.routes.ts' <code>export const routes: Routes</code>.</li>
+  <li>Add an item to 'app.routes.server.ts' <code>export const routesIDs: string[]</code>.</li>
+  <li>Add an item to '/public/data.json' blogs array <code>"blogs": [</code>.</li>
+</ol>
+
+You can see the full source code on <a href="https://github.com/jburditt/fullswing-angular-library/tree/main/projects/fullswing-blog">GitHub</a>.
+
+<h2>Versions used on Oct 14, 2025</h2>
+<ul>
+  <li>Angular 20.2</li>
+  <li>ngx-markdown 3.0.1</li>
+  <li>marked 16.4.0</li>
+  <li>clipboard 2.0.11</li>
+</ul>

@@ -1,0 +1,7 @@
+    {
+      "route": "/page/azure-static-app",
+      "title": "Deploy Azure Static Web App [from Angular workspace]",
+      "categories": ["Angular", "Azure", "GitHub"],
+      "author": "Jebb Burditt",
+      "date": "Oct 15, 2025"
+    }

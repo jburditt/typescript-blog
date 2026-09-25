@@ -91,3 +91,13 @@ The sidecar JSON must use route `/page/<basename>`.
 
 - Mermaid diagrams are not bundled directly; the generated HTML provides markup and a client-side hook so Mermaid can be added without coupling the build to Angular or a specific runtime.
 - Syntax highlighting supports the Prism languages imported in `src/lib/markdown.ts`. Additional languages can be added there if needed.
+
+## To-Do
+
+- Implement pages e.g. angular-blog.html and azure-static-app.html
+- Handle cases where blog filenames are the same in different year folders
+- Remove route from blog.json files
+- Add spec-kit
+- Add unit and Playwright tests with Axe
+- Add best practices instructions and documentation
+- Add TypeScript skills
