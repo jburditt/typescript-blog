@@ -31,7 +31,8 @@ param tags object = {
 resource staticWebApp 'Microsoft.Web/staticSites@2023-12-01' = {
   name: staticWebAppName
   location: location
-  tags: tags
+  // Required by azd to map the `web` service in azure.yaml to this resource for deploys.
+  tags: union(tags, { 'azd-service-name': 'web' })
   sku: {
     name: sku
     tier: sku

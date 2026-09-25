@@ -24,7 +24,7 @@ jobs:
       AZURE_TENANT_ID: ${{ vars.AZURE_TENANT_ID }}
       AZURE_SUBSCRIPTION_ID: ${{ vars.AZURE_SUBSCRIPTION_ID }}
       AZURE_ENV_NAME: typescript-blog
-      AZURE_LOCATION: eastus2
+      AZURE_LOCATION: westus2
     steps:
       - uses: actions/checkout@v4
 
