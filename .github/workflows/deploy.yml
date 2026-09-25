@@ -35,6 +35,9 @@ jobs:
 
       - uses: Azure/setup-azd@v2
 
+      - name: Log in with federated credentials
+        run: azd auth login --client-id "$AZURE_CLIENT_ID" --federated-credential-provider "github" --tenant-id "$AZURE_TENANT_ID"
+
       - name: Log in with Azure CLI (Federated Credentials)
         uses: azure/login@v2
         with:
