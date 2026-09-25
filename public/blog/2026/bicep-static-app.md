@@ -72,6 +72,30 @@ services:
   run: azd down --force --purge
 ```
 
+### `azd pipeline config` walkthrough
+
+Run the following command to use **Federated User Managed Identity (MSI + OIDC)** to handle the Github action authentication to Azure
+
+Running `azd pipeline config --provider github` is interactive; here's what it asks for and why:
+
+1. **Azure login** — prompts to log in if you aren't already. If your tenant enforces MFA, sign in against the specific tenant first: `azd auth login --tenant-id <tenant>`.
+2. **Environment name** — creates (or reuses) an `azd` environment, e.g. `dev`. This maps to the `AZURE_ENV_NAME` value used by `azd up`/`azd down`.
+3. **Azure subscription and location** — pick the subscription and region the Static Web App (and supporting identity) should live in.
+4. **Resource group** — create a new one or reuse an existing one.
+5. **Missing workflow file** — if `.github/workflows/azure-dev.yml` doesn't exist yet, `azd` offers to generate a starter workflow.
+6. **GitHub CLI login** — if you're not authenticated with `gh`, it walks through a device-code browser login.
+7. **Pipeline auth method** — choose **Federated User Managed Identity (MSI + OIDC)** to avoid storing any client secret. `azd` creates the MSI, assigns it the needed roles, and adds federated credentials scoped to the repo's `main` branch and pull requests.
+8. **Repo variables** — `azd` sets `AZURE_CLIENT_ID`, `AZURE_ENV_NAME`, `AZURE_LOCATION`, `AZURE_SUBSCRIPTION_ID`, and `AZURE_TENANT_ID` as GitHub Actions repo variables so the workflow can authenticate via OIDC.
+9. **Commit and push** — optionally commits the new workflow file and pushes to `origin` to kick off the first run. Declining just means you push manually later:
+
+   ```bash
+   git add .
+   git commit -m "Add azd GitHub Actions pipeline config"
+   git push --set-upstream origin main
+   ```
+
+After this, every push to `main` runs the workflow using the federated identity — no long-lived secrets in GitHub.
+
 ## What not to put in this template
 
 Keep anything that should survive a teardown — a database, storage account, custom domain binding — in a separate Bicep module or resource group. That way `azd down` for the blog's Static Web App never touches it.

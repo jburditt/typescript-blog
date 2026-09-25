@@ -14,7 +14,7 @@ param staticWebAppName string = 'swa-${uniqueString(resourceGroup().id)}'
   'westeurope'
   'eastasia'
 ])
-param location string = 'westus2s'
+param location string = 'westus2'
 
 @description('SKU for the Static Web App. Free is sufficient for a personal blog.')
 @allowed([
