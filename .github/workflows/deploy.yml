@@ -52,11 +52,13 @@ jobs:
         run: |
           set -euo pipefail
           down_exit_code=0
+          resource_group_exists="$(az group exists --name "$AZURE_RESOURCE_GROUP" --output tsv)"
 
-          if [[ "$(az group exists --name "$AZURE_RESOURCE_GROUP" --output tsv)" == "true" ]]; then
-            azd down --force --purge || down_exit_code=$?
-          else
-            echo "Resource group $AZURE_RESOURCE_GROUP does not exist; skipping azd down."
+          azd down --force --purge || down_exit_code=$?
+
+          if [[ "$resource_group_exists" != "true" ]]; then
+            echo "Resource group $AZURE_RESOURCE_GROUP was already absent before azd down; ignoring Azure teardown failures after the purge attempt."
+            down_exit_code=0
           fi
 
           ./scripts/delete-resource-group.sh
