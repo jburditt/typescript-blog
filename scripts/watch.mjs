@@ -5,13 +5,17 @@ import { fileURLToPath } from 'node:url';
 
 const projectRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const npmCli = process.env.npm_execpath;
+const port = Number(process.env.PORT) || 5173;
 
 if (!npmCli) {
   throw new Error('Run this script through npm so it can locate the npm CLI.');
 }
 
 const watchers = ['src', 'public'].map(directory =>
-  watch(resolve(projectRoot, directory), { recursive: true }, () => scheduleBuild())
+  watch(resolve(projectRoot, directory), { recursive: true }, (eventType, filename) => {
+    console.log(`Detected ${eventType} in ${directory}/${filename ?? '(unknown)'}`);
+    scheduleBuild();
+  })
 );
 let buildTimer;
 let building = false;
@@ -43,6 +47,12 @@ async function rebuild() {
     const exitCode = await runBuild();
     if (exitCode !== 0) {
       console.error(`Build failed with exit code ${exitCode}.`);
+    } else {
+      try {
+        await fetch(`http://127.0.0.1:${port}/__live-reload`, { method: 'POST' });
+      } catch (error) {
+        console.error(`Unable to notify preview browsers: ${error.message}`);
+      }
     }
   } while (rebuildRequested);
   building = false;
@@ -55,6 +65,7 @@ function scheduleBuild() {
 
 const server = spawn(process.execPath, ['.build/src/serve.js'], {
   cwd: projectRoot,
+  env: { ...process.env, LIVE_RELOAD: '1' },
   stdio: 'inherit',
 });
 

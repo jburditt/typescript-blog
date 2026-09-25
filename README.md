@@ -35,7 +35,7 @@ npm --prefix projects/typescript-blog run preview
 
 Opening `dist/index.html` directly via `file://` shows a raw directory listing for friendly URLs like `/blog/<id>/`, because browsers don't resolve `index.html` for directories without a server. `preview` builds the site and serves `dist/` over HTTP on `http://localhost:5173/` (override with the `PORT` env var), resolving friendly URLs to their `index.html` without redirecting. Use `npm run serve` to serve an existing `dist/` without rebuilding.
 
-Run `npm start` to build and serve the site while watching `src/` and `public/`. Changes trigger a fresh build and appear in the local preview at `http://localhost:5173/` (override with the `PORT` env var).
+Run `npm start` to build and serve the site while watching `src/` and `public/`. After each successful rebuild, open preview tabs refresh automatically at `http://localhost:5173/` (override with the `PORT` env var).
 
 ## Azure deployment
 

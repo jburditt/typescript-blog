@@ -1,4 +1,4 @@
-import { createServer } from 'node:http';
+import { createServer, type ServerResponse } from 'node:http';
 import { readFile, stat } from 'node:fs/promises';
 import { dirname, extname, join, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -48,9 +48,38 @@ async function serve(): Promise<void> {
   const projectRoot = resolve(currentDirectory, '..', '..');
   const distDirectory = join(projectRoot, 'dist');
   const port = Number(process.env.PORT) || 5173;
+  const liveReloadEnabled = process.env.LIVE_RELOAD === '1';
+  const reloadClients = new Set<ServerResponse>();
 
   const server = createServer((request, response) => {
     const url = new URL(request.url ?? '/', 'http://localhost');
+
+    if (liveReloadEnabled && url.pathname === '/__live-reload') {
+      if (request.method === 'GET') {
+        response.writeHead(200, {
+          'Content-Type': 'text/event-stream',
+          'Cache-Control': 'no-cache',
+          Connection: 'keep-alive',
+        });
+        response.write('retry: 1000\n\n');
+        reloadClients.add(response);
+        response.on('close', () => reloadClients.delete(response));
+        return;
+      }
+
+      if (request.method === 'POST') {
+        for (const client of reloadClients) {
+          client.write('event: reload\ndata: build-complete\n\n');
+        }
+        response.writeHead(204);
+        response.end();
+        return;
+      }
+
+      response.writeHead(405, { Allow: 'GET, POST' });
+      response.end();
+      return;
+    }
 
     resolveFilePath(distDirectory, url.pathname)
       .then(async filePath => {
@@ -60,8 +89,20 @@ async function serve(): Promise<void> {
           return;
         }
 
-        const body = await readFile(filePath);
-        response.writeHead(200, { 'Content-Type': MIME_TYPES[extname(filePath)] ?? 'application/octet-stream' });
+        let body: Buffer | string = await readFile(filePath);
+        if (liveReloadEnabled && extname(filePath) === '.html') {
+          const reloadScript = '<script>const reloadEvents = new EventSource("/__live-reload"); reloadEvents.addEventListener("reload", () => window.location.reload());</script>';
+          const html = body.toString('utf8');
+          body = html.replace(/<\/body\s*>/i, `${reloadScript}</body>`);
+          if (body === html) {
+            body += reloadScript;
+          }
+        }
+
+        response.writeHead(200, {
+          'Content-Type': MIME_TYPES[extname(filePath)] ?? 'application/octet-stream',
+          ...(liveReloadEnabled ? { 'Cache-Control': 'no-store' } : {}),
+        });
         response.end(body);
       })
       .catch(error => {
