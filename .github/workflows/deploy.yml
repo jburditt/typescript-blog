@@ -25,6 +25,7 @@ jobs:
       AZURE_SUBSCRIPTION_ID: ${{ vars.AZURE_SUBSCRIPTION_ID }}
       AZURE_ENV_NAME: typescript-blog
       AZURE_LOCATION: westus2
+      AZURE_RESOURCE_GROUP: rg-typescript-blog
     steps:
       - uses: actions/checkout@v4
 
@@ -39,8 +40,27 @@ jobs:
 
       - name: Deploy
         if: github.event_name == 'push' || inputs.action == 'up'
-        run: azd up --no-prompt
+        shell: bash
+        run: |
+          set -euo pipefail
+          ./scripts/ensure-resource-group.sh
+          azd up --no-prompt
 
       - name: Destroy
         if: inputs.action == 'down'
-        run: azd down --force --purge
+        shell: bash
+        run: |
+          set -euo pipefail
+          down_exit_code=0
+
+          if [[ "$(az group exists --name "$AZURE_RESOURCE_GROUP" --output tsv)" == "true" ]]; then
+            azd down --force --purge || down_exit_code=$?
+          else
+            echo "Resource group $AZURE_RESOURCE_GROUP does not exist; skipping azd down."
+          fi
+
+          ./scripts/delete-resource-group.sh
+
+          if [[ "$down_exit_code" -ne 0 ]]; then
+            exit "$down_exit_code"
+          fi
