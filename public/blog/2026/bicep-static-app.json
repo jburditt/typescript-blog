@@ -1,0 +1,7 @@
+{
+  "route": "/blog/bicep-static-app",
+  "title": "Deploy Azure Static Web App with Bicep + azd",
+  "categories": ["Azure", "Bicep", "GitHub"],
+  "author": "Jebb Burditt",
+  "date": "2026-09-25"
+}
