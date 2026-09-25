@@ -114,6 +114,12 @@ body {
   font: inherit;
 }
 
+.category-pill {
+  background: var(--category-bg, var(--surface-muted));
+  color: var(--category-text, var(--text));
+  border-color: var(--category-text, var(--border));
+}
+
 .filter-chip {
   cursor: pointer;
 }
@@ -122,6 +128,16 @@ body {
 .copy-code:focus-visible {
   outline: 3px solid var(--accent);
   outline-offset: 2px;
+}
+
+.filter-chip[aria-pressed="true"] {
+  background: var(--category-bg, var(--surface-muted));
+  color: var(--category-text, var(--accent));
+  border-color: var(--category-text, var(--accent));
+}
+
+.filter-chip[aria-pressed="true"] .filter-count {
+  color: inherit;
 }
 
 .filter-chip[aria-pressed="false"] {

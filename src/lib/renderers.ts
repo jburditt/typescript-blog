@@ -1,5 +1,5 @@
 import { ContentEntry, RepositoryView } from './types.js';
-import { escapeHtml, formatDate, slugify } from './html.js';
+import { escapeHtml, formatDate, getCategoryColors, slugify } from './html.js';
 import { getRelativeHref } from './routes.js';
 
 function renderCategoryFilter(repository: RepositoryView): string {
@@ -12,16 +12,20 @@ function renderCategoryFilter(repository: RepositoryView): string {
     <section class="filter-panel" aria-label="Category filters">
       <h2>Filter by category</h2>
       <div class="filter-list">
-        ${categories.map(category => `
+        ${categories.map(category => {
+          const { background, text } = getCategoryColors(category.name);
+          return `
           <button
             type="button"
             class="filter-chip"
             data-category-toggle="${escapeHtml(category.slug)}"
             aria-pressed="true"
+            style="--category-bg: ${background}; --category-text: ${text}"
           >
             ${escapeHtml(category.displayName)} <span class="filter-count">${category.count}</span>
           </button>
-        `).join('')}
+        `;
+        }).join('')}
       </div>
     </section>
   `;

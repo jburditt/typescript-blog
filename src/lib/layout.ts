@@ -1,4 +1,4 @@
-import { escapeHtml, formatDate, getCategoryDisplayName, slugify } from './html.js';
+import { escapeHtml, formatDate, getCategoryColors, getCategoryDisplayName, slugify } from './html.js';
 import { getRelativeHref } from './routes.js';
 
 export interface LayoutOptions {
@@ -19,9 +19,12 @@ function renderCategoryPills(categories: string[]): string {
 
   return `
     <ul class="category-pills" aria-label="Categories">
-      ${categories.map(category => `
-        <li class="category-pill category-pill--${slugify(category)}">${escapeHtml(getCategoryDisplayName(category))}</li>
-      `).join('')}
+      ${categories.map(category => {
+        const { background, text } = getCategoryColors(category);
+        return `
+        <li class="category-pill category-pill--${slugify(category)}" style="--category-bg: ${background}; --category-text: ${text}">${escapeHtml(getCategoryDisplayName(category))}</li>
+      `;
+      }).join('')}
     </ul>
   `;
 }
