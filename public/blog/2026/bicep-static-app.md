@@ -81,8 +81,8 @@ Running `azd pipeline config --provider github` is interactive; here's what it a
 1. **Azure login** — prompts to log in if you aren't already. If your tenant enforces MFA, sign in against the specific tenant first: `azd auth login --tenant-id <tenant>`.
 2. **Environment name** — creates (or reuses) an `azd` environment, e.g. `dev`. This maps to the `AZURE_ENV_NAME` value used by `azd up`/`azd down`.
 3. **Azure subscription and location** — pick the subscription and region the Static Web App (and supporting identity) should live in.
-4. **Resource group** — create a new one or reuse an existing one.
-5. **Missing workflow file** — if `.github/workflows/azure-dev.yml` doesn't exist yet, `azd` offers to generate a starter workflow.
+4. **Resource group** — Use `rg-typescript-blog`. If you use another value, you will need to update the yaml files
+5. **Missing workflow file** — if `.github/workflows/deploy.yml` doesn't exist yet, `azd` offers to generate a starter workflow.
 6. **GitHub CLI login** — if you're not authenticated with `gh`, it walks through a device-code browser login.
 7. **Pipeline auth method** — choose **Federated User Managed Identity (MSI + OIDC)** to avoid storing any client secret. `azd` creates the MSI, assigns it the needed roles, and adds federated credentials scoped to the repo's `main` branch and pull requests.
 8. **Repo variables** — `azd` sets `AZURE_CLIENT_ID`, `AZURE_ENV_NAME`, `AZURE_LOCATION`, `AZURE_SUBSCRIPTION_ID`, and `AZURE_TENANT_ID` as GitHub Actions repo variables so the workflow can authenticate via OIDC.
