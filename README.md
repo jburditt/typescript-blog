@@ -117,7 +117,7 @@ The sidecar JSON must use route `/page/<basename>`.
 
 ## To-Do
 
-- Implement pages e.g. angular-blog.html and azure-static-app.html
+- Implement pages e.g. angular-blog.html and azure-static-app.html OR use the existing pageRenderers
 - Handle cases where blog filenames are the same in different year folders
 - Remove route from blog.json files
 - Add spec-kit

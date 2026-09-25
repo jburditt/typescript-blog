@@ -1,0 +1,1 @@
+specify init typescript-blog --integration copilot

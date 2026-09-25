@@ -12,10 +12,7 @@ if (!npmCli) {
 }
 
 const watchers = ['src', 'public'].map(directory =>
-  watch(resolve(projectRoot, directory), { recursive: true }, (eventType, filename) => {
-    console.log(`Detected ${eventType} in ${directory}/${filename ?? '(unknown)'}`);
-    scheduleBuild();
-  })
+  watch(resolve(projectRoot, directory), { recursive: true }, () => scheduleBuild())
 );
 let buildTimer;
 let building = false;
