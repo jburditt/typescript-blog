@@ -51,7 +51,10 @@ jobs:
         run: |
           set -euo pipefail
           ./scripts/ensure-resource-group.sh
-          azd up --no-prompt
+          azd provision --no-prompt
+          # Azure Resource Graph lags behind ARM tag writes; give it time to index before deploy looks up the tagged resource.
+          sleep 30
+          azd deploy --no-prompt
 
       - name: Destroy
         if: inputs.action == 'down'
