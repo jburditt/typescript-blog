@@ -33,7 +33,7 @@ test('resource group lifecycle scripts should only manage rg-typescript-blog', (
 
   assert.match(deleteScript, /EXPECTED_RESOURCE_GROUP="rg-typescript-blog"/);
   assert.match(deleteScript, /az group delete --name "\$resource_group" --yes --no-wait --output none/);
-  assert.match(deleteScript, /az group wait --deleted --name "\$resource_group"/);
+  assert.match(deleteScript, /while \[\[ "\$\(az group exists --name "\$resource_group" --output tsv\)" == "true" \]\]/);
 
   assert.match(infra, /targetScope = 'resourceGroup'/);
 });

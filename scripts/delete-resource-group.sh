@@ -16,4 +16,7 @@ fi
 
 echo "Deleting resource group $resource_group."
 az group delete --name "$resource_group" --yes --no-wait --output none
-az group wait --deleted --name "$resource_group"
+
+while [[ "$(az group exists --name "$resource_group" --output tsv)" == "true" ]]; do
+  sleep 5
+done

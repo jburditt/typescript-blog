@@ -55,6 +55,18 @@ jobs:
             azd down --force --purge
             ./scripts/delete-resource-group.sh
           else
-            echo "Resource group $AZURE_RESOURCE_GROUP is already absent; removing the azd environment state."
+            unexpected_resource_ids="$(
+              azd env get-values --environment "$AZURE_ENV_NAME" |
+                grep '^SERVICE_.*_RESOURCE_ID=' |
+                grep -vi "/resourceGroups/$AZURE_RESOURCE_GROUP/" || true
+            )"
+
+            if [[ -n "$unexpected_resource_ids" ]]; then
+              echo "Refusing to remove azd environment state because it references resources outside $AZURE_RESOURCE_GROUP:" >&2
+              echo "$unexpected_resource_ids" >&2
+              exit 1
+            fi
+
+            echo "Resource group $AZURE_RESOURCE_GROUP is already absent and the azd environment only references resources under it; removing the azd environment state."
             azd env remove "$AZURE_ENV_NAME" --force
           fi
