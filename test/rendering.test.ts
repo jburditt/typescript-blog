@@ -30,7 +30,7 @@ test('renderLayout should escape metadata values before injecting them into the 
   assert.match(html, /C#/);
 });
 
-test('renderLayout should generate route-aware navigation links for nested pages', () => {
+test('renderLayout should include the external social navigation links', () => {
   const html = renderLayout({
     route: '/blog/example',
     assetPrefix: '../../',
@@ -39,8 +39,10 @@ test('renderLayout should generate route-aware navigation links for nested pages
     content: '<p>Body</p>',
   });
 
-  assert.match(html, /href=\"\.\.\/\.\.\/\">Home<\/a>/);
-  assert.match(html, /href=\"\.\.\/\.\.\/sitemap\/\">Sitemap<\/a>/);
+  assert.match(html, /class=\"social-links\"/);
+  assert.match(html, /href=\"https:\/\/github\.com\/jburditt\"[^>]*aria-label=\"GitHub\"/);
+  assert.match(html, /href=\"https:\/\/www\.linkedin\.com\/in\/jburditt\"[^>]*aria-label=\"LinkedIn\"/);
+  assert.match(html, /<svg width=\"25\" height=\"24\"/g);
 });
 
 test('renderLayout should resolve the header logo from the generated asset directory', () => {
@@ -53,7 +55,7 @@ test('renderLayout should resolve the header logo from the generated asset direc
   });
 
   assert.match(html, /src=\"\.\.\/\.\.\/assets\/logo\.jpg\"/);
-  assert.match(html, /href=\"\.\.\/\.\.\/brand\.svg\"/);
+  assert.match(html, /href=\"\.\.\/\.\.\/favicon\.png\"/);
 });
 
 test('getRelativeHref should resolve nested routes relative to generated output directories', () => {
