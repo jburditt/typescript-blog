@@ -43,6 +43,19 @@ test('renderLayout should generate route-aware navigation links for nested pages
   assert.match(html, /href=\"\.\.\/\.\.\/sitemap\/\">Sitemap<\/a>/);
 });
 
+test('renderLayout should resolve the header logo from the generated asset directory', () => {
+  const html = renderLayout({
+    route: '/blog/example',
+    assetPrefix: '../../',
+    pageTitle: 'Nested page',
+    title: 'Nested page',
+    content: '<p>Body</p>',
+  });
+
+  assert.match(html, /src=\"\.\.\/\.\.\/assets\/logo\.jpg\"/);
+  assert.match(html, /href=\"\.\.\/\.\.\/brand\.svg\"/);
+});
+
 test('getRelativeHref should resolve nested routes relative to generated output directories', () => {
   assert.equal(getRelativeHref('/blog/example', '/'), '../../');
   assert.equal(getRelativeHref('/blog/example', '/sitemap'), '../../sitemap/');

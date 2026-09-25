@@ -11,7 +11,8 @@
     "verify": "npm run test && npm run build",
     "build:once": "npm run compile && node .build/src/build.js",
     "serve": "node .build/src/serve.js",
-    "preview": "npm run build && npm run serve"
+    "preview": "npm run build && npm run serve",
+    "start": "npm run build && node scripts/watch.mjs"
   },
   "keywords": [],
   "author": "",

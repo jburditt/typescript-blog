@@ -52,11 +52,7 @@ export function renderLayout(options: LayoutOptions): string {
     <div class="shell">
       <header class="site-header">
         <a class="brand" href="${homeHref}">
-          <img src="${escapedAssetPrefix}brand.svg" alt="Fullswing" width="48" height="48" />
-          <span>
-            <strong>Fullswing</strong>
-            <small>TypeScript Blog</small>
-          </span>
+          <img src="${escapedAssetPrefix}assets/logo.jpg" alt="Fullswing" />
         </a>
         <nav aria-label="Primary">
           <a href="${homeHref}">Home</a>
