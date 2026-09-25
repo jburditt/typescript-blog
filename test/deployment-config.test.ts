@@ -1,9 +1,10 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
 
 const readRepoFile = (relativePath: string): string =>
-  readFileSync(new URL(`../../${relativePath}`, import.meta.url), 'utf8');
+  readFileSync(resolve(process.cwd(), relativePath), 'utf8');
 
 test('azure deployment config should pin azd to rg-typescript-blog and manage its lifecycle hooks', () => {
   const azureYaml = readRepoFile('azure.yaml');
