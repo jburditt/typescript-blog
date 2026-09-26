@@ -207,16 +207,28 @@ body {
 }
 
 .content-list li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
   padding-bottom: 1rem;
   border-bottom: 1px solid var(--border);
+}
+
+.content-list li > a {
+  flex: 1 1 auto;
+  min-width: 0;
+  text-align: left;
 }
 
 .content-list__meta {
   display: flex;
   align-items: center;
-  flex-wrap: wrap;
+  justify-content: flex-end;
+  flex: 0 0 auto;
+  flex-wrap: nowrap;
   gap: 0.3rem 0.45rem;
-  margin-top: 0.35rem;
+  white-space: nowrap;
   font-size: 0.875rem;
 }
 
@@ -363,6 +375,21 @@ pre.mermaid {
 
   .site-header {
     align-items: flex-start;
+  }
+}
+
+@media (max-width: 520px) {
+  .content-list li {
+    flex-wrap: wrap;
+    gap: 0.4rem 1rem;
+  }
+
+  .content-list li > a {
+    flex-basis: 100%;
+  }
+
+  .content-list__meta {
+    margin-left: auto;
   }
 }
 
