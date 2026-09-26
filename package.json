@@ -28,6 +28,8 @@
   },
   "devDependencies": {
     "@types/node": "20.17.19",
-    "typescript": "5.9.3"
-  }
+    "typescript": "5.9.3",
+    "nx": "23.2.1"
+  },
+  "nx": {}
 }
