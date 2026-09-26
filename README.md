@@ -168,6 +168,7 @@ The sidecar JSON must use route `/page/<basename>`.
 - Create npm package for rendering enhanced markdowns
 - Update angular-blog readme and reference this repository
 - Add blog comments
+- Run AI performance check, verify everything is static html, minimize typescript, and cache/bundle
 
 ## Roadmap
 
