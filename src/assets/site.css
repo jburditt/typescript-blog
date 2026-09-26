@@ -59,6 +59,43 @@ body {
   color: var(--text-muted);
 }
 
+.post-byline {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin: 0.5rem 0 2.25rem;
+  padding: 0.25rem 0 0.9rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.post-byline__avatar {
+  display: block;
+  flex: none;
+  width: 34px;
+  height: 28px;
+  object-fit: cover;
+  border: 1px solid lightgrey;
+  border-radius: 0.5em;
+}
+
+.post-byline__identity {
+  display: flex;
+  flex: 1;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  min-width: 0;
+}
+
+.post-byline__author {
+  color: var(--text);
+  font-weight: 600;
+}
+
+.post-byline__identity time {
+  font-size: 14px;
+}
+
 .social-links {
   display: flex;
   align-items: center;
@@ -307,5 +344,13 @@ pre.mermaid {
 
   .site-header {
     align-items: flex-start;
+  }
+}
+
+@media (max-width: 480px) {
+  .post-byline__identity {
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    gap: 0.25rem 0.55rem;
   }
 }

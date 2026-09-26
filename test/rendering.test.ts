@@ -30,6 +30,22 @@ test('renderLayout should escape metadata values before injecting them into the 
   assert.match(html, /C#/);
 });
 
+test('renderLayout should render an accessible author byline below the title', () => {
+  const html = renderLayout({
+    route: '/blog/example',
+    assetPrefix: '../../',
+    pageTitle: 'Nested page',
+    title: 'Nested page',
+    author: 'Jebb Burditt',
+    date: new Date('2025-10-17T00:00:00.000Z'),
+    content: '<p>Body</p>',
+  });
+
+  assert.match(html, /<h1>Nested page<\/h1>\s+<div class="page-meta post-byline">/);
+  assert.match(html, /src="\.\.\/\.\.\/assets\/avatar\.png" alt="Portrait of Jebb Burditt"/);
+  assert.match(html, /<time datetime="2025-10-17T00:00:00\.000Z">Oct 17, 2025<\/time>/);
+});
+
 test('renderLayout should include the external social navigation links', () => {
   const html = renderLayout({
     route: '/blog/example',

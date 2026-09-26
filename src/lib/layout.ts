@@ -33,11 +33,13 @@ export function renderLayout(options: LayoutOptions): string {
   const { route, assetPrefix, pageTitle, title, content, author, date, categories = [] } = options;
   const escapedAssetPrefix = escapeHtml(assetPrefix);
   const headingMeta = author || date ? `
-    <p class="page-meta">
-      ${author ? `<span>${escapeHtml(author)}</span>` : ''}
-      ${author && date ? '<span aria-hidden="true">•</span>' : ''}
-      ${date ? `<time datetime="${date.toISOString()}">${escapeHtml(formatDate(date))}</time>` : ''}
-    </p>
+    <div class="page-meta post-byline">
+      ${author ? `<img class="post-byline__avatar" src="${escapedAssetPrefix}assets/avatar.png" alt="Portrait of ${escapeHtml(author)}" />` : ''}
+      <div class="post-byline__identity">
+        ${author ? `<span class="post-byline__author">${escapeHtml(author)}</span>` : ''}
+        ${date ? `<time datetime="${date.toISOString()}">${escapeHtml(formatDate(date))}</time>` : ''}
+      </div>
+    </div>
   ` : '';
 
   return `<!doctype html>
