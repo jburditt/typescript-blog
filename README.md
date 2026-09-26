@@ -116,6 +116,28 @@ The sidecar JSON must use route `/page/<basename>`.
 - To destroy the Azure resources run `azd down --force --purge`
 - To provision the Azure resources run `azd provision`
 
+## Spec-Kit
+
+### Shorter path — for smaller features:
+
+- `/speckit-specify`
+- `/speckit-plan`
+- `/speckit-tasks`
+- `/speckit-implement`
+- `/speckit-converge`
+
+### Full path — for production features, adding /speckit-clarify, /speckit-checklist, and /speckit-analyze as quality gates:
+
+- `/speckit-constitution` (once per project)
+- `/speckit-specify`
+- `/speckit-clarify`
+- `/speckit-plan`
+- `/speckit-checklist`
+- `/speckit-tasks`
+- `/speckit-analyze`
+- `/speckit-implement`
+- `/speckit-converge`
+
 ## To-Do
 
 - Implement pages e.g. angular-blog.html and azure-static-app.html OR use the existing pageRenderers

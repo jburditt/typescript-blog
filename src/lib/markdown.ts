@@ -109,7 +109,7 @@ function renderCodeBlock(code: string, rawInfo: string | undefined): string {
     }
 
     return `<span ${attributes.join(' ')}>${line || ' '}</span>`;
-  }).join('\n');
+  }).join('');
 
   const languageClass = options.language ? ` language-${escapeHtml(options.language)}` : '';
   const preClass = options.lineNumbers ? 'code-block has-line-numbers' : 'code-block';

@@ -17,6 +17,7 @@ test('renderMarkdown should add line numbers and highlighted lines for fenced co
   assert.match(defaultNumberedHtml, /class="code-block has-line-numbers"/);
   assert.match(defaultNumberedHtml, /data-line-number="1"/);
   assert.match(defaultNumberedHtml, /data-line-number="2"/);
+  assert.doesNotMatch(defaultNumberedHtml, /<\/span>\s+<span class="code-line/);
 });
 
 test('renderLayout should escape metadata values before injecting them into the page shell', () => {
