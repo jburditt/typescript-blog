@@ -3,7 +3,7 @@ This is a simple demo of the blog features
 # Markdown Header
 
 ## Code Blocks
-```typescript
+```typescript line=4
 const test = "hello";
 console.log(test + " world");
 // highlight the following line

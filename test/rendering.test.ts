@@ -20,6 +20,19 @@ test('renderMarkdown should add line numbers and highlighted lines for fenced co
   assert.doesNotMatch(defaultNumberedHtml, /<\/span>\s+<span class="code-line/);
 });
 
+test('renderMarkdown should highlight comma-separated lines and ranges', () => {
+  const html = renderMarkdown('```typescript line=1,3-4\nconst one = 1;\nconst two = 2;\nconst three = 3;\nconst four = 4;\n```');
+  const lineClasses = [...html.matchAll(/class="(code-line(?: is-highlighted)?)"/g)]
+    .map((match) => match[1]);
+
+  assert.deepEqual(lineClasses, [
+    'code-line is-highlighted',
+    'code-line',
+    'code-line is-highlighted',
+    'code-line is-highlighted',
+  ]);
+});
+
 test('renderLayout should escape metadata values before injecting them into the page shell', () => {
   const html = renderLayout({
     route: '/blog/example',
