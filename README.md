@@ -104,11 +104,11 @@ The sidecar JSON must use route `/page/<basename>`.
 - Server-rendered line numbers and line highlighting for fenced code blocks using info-string directives such as `line=2-4 lineOffset=10`
 - Minimal client-side category filtering and copy-to-clipboard behavior
 - Header social navigation uses accessible GitHub and LinkedIn SVG icons with lighter resting fills and darker hover/focus states
-- Mermaid extension point: Mermaid blocks render as `<pre class="mermaid">...</pre>`, and `assets/site.js` will auto-run `window.mermaid.run(...)` when Mermaid is present or expose `window.typescriptBlog.enhanceMermaid(...)` for custom enhancement
+- Mermaid diagrams: Pages containing Mermaid blocks load the pinned Mermaid CDN runtime and initialize it with restrictive defaults. Blocks render from escaped `<pre class="mermaid">...</pre>` source, while `assets/site.js` auto-runs `window.mermaid.run({ nodes })` or exposes `window.typescriptBlog.enhanceMermaid(enhancer)` for a host that loads Mermaid later. Enhancement failures leave the source readable and are isolated per block.
 
 ## Limitations
 
-- Mermaid diagrams are not bundled directly; the generated HTML provides markup and a client-side hook so Mermaid can be added without coupling the build to Angular or a specific runtime.
+- Mermaid is loaded from a pinned CDN URL rather than bundled into the generator. If the runtime is unavailable, the generated HTML remains readable source. Hosts control any alternate loading, configuration, security policy, and CSP. Authors should add Mermaid `accTitle` and `accDescr` entries when a diagram conveys important information.
 - Syntax highlighting supports the Prism languages imported in `src/lib/markdown.ts`. Additional languages can be added there if needed.
 
 ## Azure Deployments

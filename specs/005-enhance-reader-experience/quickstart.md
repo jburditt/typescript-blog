@@ -52,3 +52,12 @@ For an interactive browser check, serve the generated output with `npm run previ
 containing a Mermaid fence, and verify that the source is readable before a host runtime is added.
 When a host supplies Mermaid, verify successful SVG enhancement and that a malformed diagram does
 not hide its source or affect other article content.
+
+## Requirement Validation Matrix
+
+| Requirements | Validation |
+|---|---|
+| FR-001 to FR-003, SC-001 to SC-002 | Repository, catalogue, and category-filter tests in `test/repository.test.ts`, `test/rendering.test.ts`, and `test/site-client.test.ts`. |
+| FR-004 to FR-006, SC-003 to SC-004 | Markdown annotation and copy-feedback tests in `test/rendering.test.ts` and `test/site-client.test.ts`. |
+| FR-007 to FR-008, SC-005 | Category state, social markup, and focus-style checks in `test/site-client.test.ts`, `test/rendering.test.ts`, and `src/assets/site.css`. |
+| FR-009 to FR-010, SC-006 | Mermaid markup and extension-point tests plus the absent, available, late-loaded, and failing-runtime browser scenarios above. |

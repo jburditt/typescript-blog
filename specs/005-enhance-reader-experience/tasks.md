@@ -18,17 +18,17 @@ Mermaid-specific work is in User Story 3, with shared validation in the final ph
 
 **Purpose**: Establish the existing static-site generator surfaces used by this feature.
 
-- [ ] T001 [P] Confirm Node.js `>=20.19.0`, installed dependencies, and existing native `node:test` commands in `package.json`
-- [ ] T002 [P] Review the current Markdown, layout, renderer, and browser-client entry points in `src/lib/markdown.ts`, `src/lib/layout.ts`, `src/lib/renderers.ts`, and `src/assets/site.js`
-- [ ] T003 [P] Identify representative catalogue, code, social, and Mermaid fixtures in `public/blog/2026/demo-features.md`, `public/blog/2025/doc-template.md`, and existing test files
+- [X] T001 [P] Confirm Node.js `>=20.19.0`, installed dependencies, and existing native `node:test` commands in `package.json`
+- [X] T002 [P] Review the current Markdown, layout, renderer, and browser-client entry points in `src/lib/markdown.ts`, `src/lib/layout.ts`, `src/lib/renderers.ts`, and `src/assets/site.js`
+- [X] T003 [P] Identify representative catalogue, code, social, and Mermaid fixtures in `public/blog/2026/demo-features.md`, `public/blog/2025/doc-template.md`, and existing test files
 
 ## Phase 2: Foundational (Blocking Prerequisites)
 
 **Purpose**: Preserve the repository-wide static-site and verification constraints before story work.
 
-- [ ] T004 Add a focused feature validation matrix covering FR-001 through FR-010 and SC-001 through SC-006 in `specs/005-enhance-reader-experience/quickstart.md`
-- [ ] T005 [P] Confirm generated client assets remain route-safe at nested output paths through an assertion in `test/rendering.test.ts`
-- [ ] T006 [P] Confirm all behavioral changes use native `node:test` coverage and compile-to-`.build/test/` commands documented in `specs/005-enhance-reader-experience/quickstart.md`
+- [X] T004 Add a focused feature validation matrix covering FR-001 through FR-010 and SC-001 through SC-006 in `specs/005-enhance-reader-experience/quickstart.md`
+- [X] T005 [P] Confirm generated client assets remain route-safe at nested output paths through an assertion in `test/rendering.test.ts`
+- [X] T006 [P] Confirm all behavioral changes use native `node:test` coverage and compile-to-`.build/test/` commands documented in `specs/005-enhance-reader-experience/quickstart.md`
 
 **Checkpoint**: Shared project constraints and validation entry points are documented; user stories can be implemented independently.
 
@@ -40,15 +40,15 @@ Mermaid-specific work is in User Story 3, with shared validation in the final ph
 
 ### Tests for User Story 1
 
-- [ ] T007 [P] [US1] Add repository ordering and category-summary assertions for blogs, pages, combined content, equal dates, normalized identifiers, and counts in `test/repository.test.ts`
-- [ ] T008 [P] [US1] Add catalogue rendering assertions for content type, title, date, author, categories, and links in `test/rendering.test.ts`
-- [ ] T009 [P] [US1] Add browser assertions for category visibility, `aria-pressed` state, and protection against disabling the final active category in `test/site-client.test.ts`
+- [X] T007 [P] [US1] Add repository ordering and category-summary assertions for blogs, pages, combined content, equal dates, normalized identifiers, and counts in `test/repository.test.ts`
+- [X] T008 [P] [US1] Add catalogue rendering assertions for content type, title, date, author, categories, and links in `test/rendering.test.ts`
+- [X] T009 [P] [US1] Add browser assertions for category visibility, `aria-pressed` state, and protection against disabling the final active category in `test/site-client.test.ts`
 
 ### Implementation for User Story 1
 
-- [ ] T010 [US1] Implement or correct deterministic repository sorting and category summaries in `src/lib/repository.ts` so blogs, pages, and combined content sort by descending date then title
-- [ ] T011 [US1] Render complete catalogue metadata and category filter controls in `src/lib/renderers.ts`, preserving normalized category identifiers and item counts
-- [ ] T012 [US1] Implement category filtering and final-active-category protection in `src/assets/site.js`, including assistive-technology state updates
+- [X] T010 [US1] Implement or correct deterministic repository sorting and category summaries in `src/lib/repository.ts` so blogs, pages, and combined content sort by descending date then title
+- [X] T011 [US1] Render complete catalogue metadata and category filter controls in `src/lib/renderers.ts`, preserving normalized category identifiers and item counts
+- [X] T012 [US1] Implement category filtering and final-active-category protection in `src/assets/site.js`, including assistive-technology state updates
 
 **Checkpoint**: User Story 1 is independently testable through the catalogue and its native repository/client tests.
 
@@ -60,14 +60,14 @@ Mermaid-specific work is in User Story 3, with shared validation in the final ph
 
 ### Tests for User Story 2
 
-- [ ] T013 [P] [US2] Add Markdown rendering assertions for supported languages, unsupported-language escaping, `lineNumbers`, `line`, `lineOffset`, and inclusive ranges in `test/rendering.test.ts`
-- [ ] T014 [P] [US2] Add browser assertions for full code extraction, successful clipboard feedback, unavailable clipboard feedback, and denied-copy feedback in `test/site-client.test.ts`
+- [X] T013 [P] [US2] Add Markdown rendering assertions for supported languages, unsupported-language escaping, `lineNumbers`, `line`, `lineOffset`, and inclusive ranges in `test/rendering.test.ts`
+- [X] T014 [P] [US2] Add browser assertions for full code extraction, successful clipboard feedback, unavailable clipboard feedback, and denied-copy feedback in `test/site-client.test.ts`
 
 ### Implementation for User Story 2
 
-- [ ] T015 [US2] Implement or correct fenced-code parsing and rendering in `src/lib/markdown.ts` so line highlights are 1-based, ranges are inclusive, and `lineOffset` changes displayed numbers without shifting highlights
-- [ ] T016 [US2] Implement or correct accessible copy controls and status announcements in `src/lib/renderers.ts` and `src/assets/site.js` without altering the source code text
-- [ ] T017 [US2] Preserve readable, safely escaped output for unsupported languages in `src/lib/markdown.ts` and add the corresponding fixture case to `test/rendering.test.ts`
+- [X] T015 [US2] Implement or correct fenced-code parsing and rendering in `src/lib/markdown.ts` so line highlights are 1-based, ranges are inclusive, and `lineOffset` changes displayed numbers without shifting highlights
+- [X] T016 [US2] Implement or correct accessible copy controls and status announcements in `src/lib/renderers.ts` and `src/assets/site.js` without altering the source code text
+- [X] T017 [US2] Preserve readable, safely escaped output for unsupported languages in `src/lib/markdown.ts` and add the corresponding fixture case to `test/rendering.test.ts`
 
 **Checkpoint**: User Stories 1 and 2 remain independently functional, and the article reading/copying workflow passes its focused tests.
 
@@ -79,17 +79,17 @@ Mermaid-specific work is in User Story 3, with shared validation in the final ph
 
 ### Tests for User Story 3
 
-- [ ] T018 [P] [US3] Add social-navigation assertions for accessible names, lighter resting fills, and distinct hover/focus styling in `test/rendering.test.ts`
-- [ ] T019 [P] [US3] Add Mermaid Markdown assertions for exact `<pre class="mermaid">` output, source escaping, multiple blocks, and no code-copy control in `test/rendering.test.ts`
-- [ ] T020 [P] [US3] Add Mermaid client contract tests for no runtime, automatic `window.mermaid.run({ nodes })`, manual late loading, multiple blocks, asynchronous completion, rejected enhancement, and failed-source preservation in `test/site-client.test.ts`
+- [X] T018 [P] [US3] Add social-navigation assertions for accessible names, lighter resting fills, and distinct hover/focus styling in `test/rendering.test.ts`
+- [X] T019 [P] [US3] Add Mermaid Markdown assertions for exact `<pre class="mermaid">` output, source escaping, multiple blocks, and no code-copy control in `test/rendering.test.ts`
+- [X] T020 [P] [US3] Add Mermaid client contract tests for no runtime, automatic `window.mermaid.run({ nodes })`, manual late loading, multiple blocks, asynchronous completion, rejected enhancement, and failed-source preservation in `test/site-client.test.ts`
 
 ### Implementation for User Story 3
 
-- [ ] T021 [US3] Preserve exact escaped Mermaid block markup and readable fallback behavior in `src/lib/markdown.ts` for every `mermaid` fence
-- [ ] T022 [US3] Make `setupMermaidExtensionPoint` in `src/assets/site.js` expose the documented `window.typescriptBlog.enhanceMermaid(enhancer)` contract, support late/asynchronous hosts, and contain thrown or rejected enhancement failures
-- [ ] T023 [US3] Isolate Mermaid enhancement failure per block in `src/assets/site.js` so a malformed diagram preserves its source and does not affect other blocks or article behavior
-- [ ] T024 [US3] Preserve accessible GitHub and LinkedIn labels, focus states, and resting/interactive icon fills in `src/lib/layout.ts` and `src/assets/site.css`
-- [ ] T025 [US3] Update Mermaid extension documentation and host usage guidance in `README.md` to describe optional runtime loading, `mermaid.run`, the manual hook, safe source fallback, and `accTitle`/`accDescr`
+- [X] T021 [US3] Preserve exact escaped Mermaid block markup and readable fallback behavior in `src/lib/markdown.ts` for every `mermaid` fence
+- [X] T022 [US3] Make `setupMermaidExtensionPoint` in `src/assets/site.js` expose the documented `window.typescriptBlog.enhanceMermaid(enhancer)` contract, support late/asynchronous hosts, and contain thrown or rejected enhancement failures
+- [X] T023 [US3] Isolate Mermaid enhancement failure per block in `src/assets/site.js` so a malformed diagram preserves its source and does not affect other blocks or article behavior
+- [X] T024 [US3] Preserve accessible GitHub and LinkedIn labels, focus states, and resting/interactive icon fills in `src/lib/layout.ts` and `src/assets/site.css`
+- [X] T025 [US3] Update Mermaid extension documentation and host usage guidance in `README.md` to describe optional runtime loading, `mermaid.run`, the manual hook, safe source fallback, and `accTitle`/`accDescr`
 
 **Checkpoint**: All three user stories are independently functional; Mermaid remains optional and no article becomes unreadable when enhancement is absent or fails.
 
@@ -97,11 +97,11 @@ Mermaid-specific work is in User Story 3, with shared validation in the final ph
 
 **Purpose**: Validate the complete static output and ensure the implementation matches the design contract.
 
-- [ ] T026 [P] Run the focused rendering and client tests from `specs/005-enhance-reader-experience/quickstart.md` after compiling to `.build/`
-- [ ] T027 [P] Run `npm test` and resolve only feature-related regressions in `test/`
-- [ ] T028 Run `npm run build` and verify generated Mermaid markup, nested asset references, and route output under `dist/`
-- [ ] T029 [P] Run `git diff --check` and review changed files against `specs/005-enhance-reader-experience/contracts/mermaid-extension.md`
-- [ ] T030 Run the browser validation in `specs/005-enhance-reader-experience/quickstart.md` with Mermaid absent, available, late-loaded, and failing
+- [X] T026 [P] Run the focused rendering and client tests from `specs/005-enhance-reader-experience/quickstart.md` after compiling to `.build/`
+- [X] T027 [P] Run `npm test` and resolve only feature-related regressions in `test/`
+- [X] T028 Run `npm run build` and verify generated Mermaid markup, nested asset references, and route output under `dist/`
+- [X] T029 [P] Run `git diff --check` and review changed files against `specs/005-enhance-reader-experience/contracts/mermaid-extension.md`
+- [X] T030 Run the browser validation in `specs/005-enhance-reader-experience/quickstart.md` with Mermaid absent, available, late-loaded, and failing
 
 ## Dependencies & Execution Order
 
@@ -177,3 +177,7 @@ build dependency.
 - `[P]` appears only where tasks target independent files or validation concerns.
 - Story tasks carry exactly one `[US#]` label and include an exact repository path.
 - No Azure deployment files are in scope.
+
+## Phase 7: Convergence
+
+- [ ] T031 Align `test/deployment-config.test.ts` with the current pinned `rg-typescript-blog` lifecycle contract in `azure.yaml` and `.github/workflows/deploy.yml`, then make `npm test` pass per Constitution IV (partial)

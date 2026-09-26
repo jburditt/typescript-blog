@@ -33,6 +33,13 @@ test('renderMarkdown should highlight comma-separated lines and ranges', () => {
   ]);
 });
 
+test('renderMarkdown should preserve escaped Mermaid source without code controls', () => {
+  const html = renderMarkdown('```mermaid\ngraph TD;\n<script>alert(1)</script>\n```');
+
+  assert.match(html, /<pre class="mermaid">graph TD;\n&lt;script&gt;alert\(1\)&lt;\/script&gt;<\/pre>/);
+  assert.doesNotMatch(html, /data-copy-code/);
+});
+
 test('renderLayout should escape metadata values before injecting them into the page shell', () => {
   const html = renderLayout({
     route: '/blog/example',
@@ -130,6 +137,19 @@ test('renderLayout should resolve the header logo from the generated asset direc
 
   assert.match(html, /src=\"\.\.\/\.\.\/assets\/logo\.jpg\"/);
   assert.match(html, /href=\"\.\.\/\.\.\/favicon\.png\"/);
+});
+
+test('renderLayout should load Mermaid for pages containing diagram blocks', () => {
+  const html = renderLayout({
+    route: '/blog/example',
+    assetPrefix: '../../',
+    pageTitle: 'Diagram page',
+    title: 'Diagram page',
+    content: '<pre class="mermaid">graph TD;</pre>',
+  });
+
+  assert.match(html, /mermaid@11\.12\.0\/dist\/mermaid\.min\.js/);
+  assert.match(html, /mermaid\?\.initialize\(\{\s*startOnLoad: false,\s*securityLevel: 'strict'\s*\}\)/);
 });
 
 test('getRelativeHref should resolve nested routes relative to generated output directories', () => {
