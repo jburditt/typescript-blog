@@ -1,6 +1,6 @@
 import { ContentEntry, RepositoryView } from './types.js';
 import { escapeHtml, formatDate, getCategoryColors, slugify } from './html.js';
-import { getRelativeHref } from './routes.js';
+import { getAssetPrefix, getRelativeHref } from './routes.js';
 
 function renderCategoryFilter(repository: RepositoryView): string {
   const categories = repository.getCategories();
@@ -38,11 +38,10 @@ function renderContentList(entries: ContentEntry[], currentRoute: string): strin
         <li data-categories="${escapeHtml(entry.categories.map(category => slugify(category)).join(' '))}">
           <a href="${escapeHtml(getRelativeHref(currentRoute, entry.route))}">${escapeHtml(entry.title)}</a>
           <div class="content-list__meta">
-            <span>${escapeHtml(entry.kind === 'blog' ? 'Blog Post' : 'Page')}</span>
-            <span aria-hidden="true">•</span>
-            <span>${escapeHtml(formatDate(entry.dateValue))}</span>
-            <span aria-hidden="true">•</span>
+            <img class="content-list__avatar" src="${escapeHtml(getAssetPrefix(currentRoute))}assets/avatar.png" alt="Portrait of ${escapeHtml(entry.author)}" />
             <span>${escapeHtml(entry.author)}</span>
+            <span aria-hidden="true">•</span>
+            <time datetime="${entry.dateValue.toISOString()}">${escapeHtml(formatDate(entry.dateValue))}</time>
           </div>
         </li>
       `).join('')}

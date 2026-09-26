@@ -2,7 +2,10 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { renderLayout } from '../src/lib/layout.js';
 import { renderMarkdown } from '../src/lib/markdown.js';
+import { renderHomePage, renderSitemapPage } from '../src/lib/renderers.js';
+import { ContentRepository } from '../src/lib/repository.js';
 import { getRelativeHref } from '../src/lib/routes.js';
+import { BlogEntry, PageEntry } from '../src/lib/types.js';
 
 test('renderMarkdown should add line numbers and highlighted lines for fenced code blocks', () => {
   const html = renderMarkdown('```typescript line=2 lineOffset=10\nconst one = 1;\nconst two = 2;\n```');
@@ -44,6 +47,43 @@ test('renderLayout should render an accessible author byline below the title', (
   assert.match(html, /<h1>Nested page<\/h1>\s+<div class="page-meta post-byline">/);
   assert.match(html, /src="\.\.\/\.\.\/assets\/avatar\.png" alt="Portrait of Jebb Burditt"/);
   assert.match(html, /<time datetime="2025-10-17T00:00:00\.000Z">Oct 17, 2025<\/time>/);
+});
+
+test('home and sitemap listings should render compact author metadata with route-relative avatars', () => {
+  const blogs: BlogEntry[] = [{
+    kind: 'blog',
+    id: 'example',
+    route: '/blog/example',
+    title: 'Example post',
+    categories: ['Document'],
+    author: 'Jebb Burditt',
+    date: '2025-10-17',
+    dateValue: new Date('2025-10-17T00:00:00.000Z'),
+    markdownPath: '/tmp/example.md',
+    metadataPath: '/tmp/example.json',
+  }];
+  const pages: PageEntry[] = [{
+    kind: 'page',
+    name: 'about',
+    route: '/page/about',
+    title: 'About',
+    categories: ['Document'],
+    author: 'Jebb Burditt',
+    date: '2025-10-17',
+    dateValue: new Date('2025-10-17T00:00:00.000Z'),
+    metadataPath: '/tmp/about.json',
+    modulePath: '/tmp/about.js',
+  }];
+  const repository = new ContentRepository(blogs, pages);
+  const homeHtml = renderHomePage(repository);
+  const sitemapHtml = renderSitemapPage(repository);
+
+  assert.match(homeHtml, /src="\.\/assets\/avatar\.png" alt="Portrait of Jebb Burditt"/);
+  assert.match(sitemapHtml, /src="\.\.\/assets\/avatar\.png" alt="Portrait of Jebb Burditt"/);
+  for (const html of [homeHtml, sitemapHtml]) {
+    assert.match(html, /class="content-list__avatar"/);
+    assert.match(html, /<time datetime="2025-10-17T00:00:00\.000Z">Oct 17, 2025<\/time>/);
+  }
 });
 
 test('renderLayout should include the external social navigation links', () => {
