@@ -1,11 +1,33 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { once } from 'node:events';
+import { createServer, IncomingMessage, ServerResponse } from 'node:http';
 import { renderLayout } from '../src/lib/layout.js';
 import { renderMarkdown } from '../src/lib/markdown.js';
 import { renderHomePage, renderSitemapPage } from '../src/lib/renderers.js';
 import { ContentRepository } from '../src/lib/repository.js';
 import { getRelativeHref } from '../src/lib/routes.js';
 import { BlogEntry, PageEntry } from '../src/lib/types.js';
+
+type FixtureHandler = (request: IncomingMessage, response: ServerResponse) => void;
+
+async function withHttpFixture<T>(handler: FixtureHandler, callback: (url: string) => Promise<T>): Promise<T> {
+  const server = createServer(handler);
+  server.listen(0, '127.0.0.1');
+  await once(server, 'listening');
+  const address = server.address();
+  if (!address || typeof address === 'string') {
+    server.close();
+    throw new Error('HTTP fixture did not bind to a port.');
+  }
+
+  try {
+    return await callback(`http://127.0.0.1:${address.port}`);
+  } finally {
+    server.close();
+    await once(server, 'close');
+  }
+}
 
 test('renderMarkdown should add line numbers and highlighted lines for fenced code blocks', async () => {
   const html = await renderMarkdown('```typescript line=2 lineOffset=10\nconst one = 1;\nconst two = 2;\n```');
@@ -44,9 +66,11 @@ test('renderMarkdown should render a fetched source with existing code directive
   const sourceUrl = 'https://raw.githubusercontent.com/example/project/abc123/app.ts';
   const html = await renderMarkdown(
     `\`\`\`typescript source=${sourceUrl} line=2 lineOffset=10\n\`\`\``,
-    { fetchSource: async url => {
+    { fetchImpl: async url => {
       assert.equal(url, sourceUrl);
-      return 'const one = 1;\nconst two = 2;\n';
+      return new Response('const one = 1;\nconst two = 2;\n', {
+        headers: { 'content-type': 'text/plain' },
+      });
     } },
   );
 
@@ -62,9 +86,11 @@ test('renderMarkdown should cache fetched sources and escape source attribution'
   let fetchCount = 0;
   const html = await renderMarkdown(
     `\`\`\`typescript source=${sourceUrl}\n\`\`\`\n\n\`\`\`typescript source=${sourceUrl}\n\`\`\``,
-    { fetchSource: async () => {
+    { fetchImpl: async () => {
       fetchCount += 1;
-      return '<script>alert(1)</script>';
+      return new Response('<script>alert(1)</script>', {
+        headers: { 'content-type': 'text/plain' },
+      });
     } },
   );
 
@@ -76,17 +102,19 @@ test('renderMarkdown should cache fetched sources and escape source attribution'
 
 test('renderMarkdown should reject malformed and disallowed source URLs before fetching', async () => {
   let fetchCount = 0;
-  const fetchSource = async () => {
+  const fetchImpl = async () => {
     fetchCount += 1;
-    return 'unreachable';
+    return new Response('unreachable', {
+      headers: { 'content-type': 'text/plain' },
+    });
   };
 
   await assert.rejects(
-    renderMarkdown('```typescript source=not-a-url\n```', { fetchSource }),
+    renderMarkdown('```typescript source=not-a-url\n```', { fetchImpl }),
     /the URL is malformed/,
   );
   await assert.rejects(
-    renderMarkdown('```typescript source=http://example.com/app.ts\n```', { fetchSource }),
+    renderMarkdown('```typescript source=http://example.com/app.ts\n```', { fetchImpl }),
     /the protocol or host is not approved/,
   );
   assert.equal(fetchCount, 0);
@@ -97,12 +125,62 @@ test('renderMarkdown should report remote fetch failures with the source URL', a
 
   await assert.rejects(
     renderMarkdown(`\`\`\`typescript source=${sourceUrl}\n\`\`\``, {
-      fetchSource: async () => {
+      fetchImpl: async () => {
         throw new Error('fixture unavailable');
       },
     }),
     new RegExp(`Unable to load remote code source ${sourceUrl}: fixture unavailable`),
   );
+});
+
+test('renderMarkdown should validate HTTP status, content type, and response size', async () => {
+  const sourceUrl = 'https://raw.githubusercontent.com/example/project/abc123/app.ts';
+  const fence = `\`\`\`typescript source=${sourceUrl}\n\`\`\``;
+
+  await withHttpFixture((_request, response) => {
+    response.writeHead(404, { 'content-type': 'text/plain' });
+    response.end('missing');
+  }, async fixtureUrl => {
+    await assert.rejects(
+      renderMarkdown(fence, { fetchImpl: () => fetch(fixtureUrl), articleRoute: '/blog/example' }),
+      /while rendering \/blog\/example: the server returned HTTP 404/,
+    );
+  });
+
+  await withHttpFixture((_request, response) => {
+    response.writeHead(200, { 'content-type': 'image/png' });
+    response.end('not text');
+  }, async fixtureUrl => {
+    await assert.rejects(
+      renderMarkdown(fence, { fetchImpl: () => fetch(fixtureUrl) }),
+      /content type image\/png is not text/,
+    );
+  });
+
+  await withHttpFixture((_request, response) => {
+    response.writeHead(200, { 'content-type': 'text/plain' });
+    response.end('this source is too large');
+  }, async fixtureUrl => {
+    await assert.rejects(
+      renderMarkdown(fence, { fetchImpl: () => fetch(fixtureUrl), maxSourceBytes: 4 }),
+      /exceeds the 4-byte limit/,
+    );
+  });
+});
+
+test('renderMarkdown should abort timed-out HTTP source requests', async () => {
+  const sourceUrl = 'https://raw.githubusercontent.com/example/project/abc123/app.ts';
+  await withHttpFixture(() => {
+    // Leave the response open until the resolver aborts the request.
+  }, async fixtureUrl => {
+    await assert.rejects(
+      renderMarkdown(`\`\`\`typescript source=${sourceUrl}\n\`\`\``, {
+        fetchImpl: (_url, init) => fetch(fixtureUrl, init),
+        sourceTimeoutMs: 10,
+      }),
+      /timed out after 10ms/,
+    );
+  });
 });
 
 test('renderMarkdown should reuse a shared source cache across renders', async () => {
@@ -111,9 +189,11 @@ test('renderMarkdown should reuse a shared source cache across renders', async (
   let fetchCount = 0;
   const options = {
     sourceCache,
-    fetchSource: async () => {
+    fetchImpl: async () => {
       fetchCount += 1;
-      return 'const shared = true;';
+      return new Response('const shared = true;', {
+        headers: { 'content-type': 'text/plain' },
+      });
     },
   };
 

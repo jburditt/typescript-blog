@@ -15,14 +15,13 @@ const DEFAULT_ALLOWED_HOSTS = new Set(['raw.githubusercontent.com']);
 const DEFAULT_MAX_SOURCE_BYTES = 1_000_000;
 const DEFAULT_SOURCE_TIMEOUT_MS = 10_000;
 
-type SourceFetcher = (url: string) => Promise<string>;
-
 export interface MarkdownRenderOptions {
-  fetchSource?: SourceFetcher;
+  fetchImpl?: typeof fetch;
   sourceCache?: Map<string, Promise<string>>;
   allowedSourceHosts?: ReadonlySet<string>;
   maxSourceBytes?: number;
   sourceTimeoutMs?: number;
+  articleRoute?: string;
 }
 
 interface CodeFenceOptions {
@@ -34,8 +33,9 @@ interface CodeFenceOptions {
 }
 
 export class RemoteSourceError extends Error {
-  constructor(readonly sourceUrl: string, reason: string) {
-    super(`Unable to load remote code source ${sourceUrl}: ${reason}`);
+  constructor(readonly sourceUrl: string, reason: string, articleRoute?: string) {
+    const articleContext = articleRoute ? ` while rendering ${articleRoute}` : '';
+    super(`Unable to load remote code source ${sourceUrl}${articleContext}: ${reason}`);
     this.name = 'RemoteSourceError';
   }
 }
@@ -184,21 +184,24 @@ async function readResponseText(response: Response, sourceUrl: string, maxBytes:
 
 async function fetchRemoteSource(
   sourceUrl: string,
-  options: Required<Pick<MarkdownRenderOptions, 'allowedSourceHosts' | 'maxSourceBytes' | 'sourceTimeoutMs'>>,
+  options: Required<Pick<MarkdownRenderOptions, 'allowedSourceHosts' | 'maxSourceBytes' | 'sourceTimeoutMs'>> & {
+    fetchImpl: typeof fetch;
+    articleRoute?: string;
+  },
 ): Promise<string> {
   validateSourceUrl(sourceUrl, options.allowedSourceHosts);
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), options.sourceTimeoutMs);
 
   try {
-    const response = await fetch(sourceUrl, { signal: controller.signal });
+    const response = await options.fetchImpl(sourceUrl, { signal: controller.signal });
     if (!response.ok) {
-      throw new RemoteSourceError(sourceUrl, `the server returned HTTP ${response.status}`);
+      throw new RemoteSourceError(sourceUrl, `the server returned HTTP ${response.status}`, options.articleRoute);
     }
 
     const contentType = response.headers.get('content-type') ?? '';
-    if (contentType && !contentType.startsWith('text/') && !contentType.includes('json') && !contentType.includes('javascript')) {
-      throw new RemoteSourceError(sourceUrl, `the response content type ${contentType} is not text`);
+    if (!contentType || (!contentType.startsWith('text/') && !contentType.includes('json') && !contentType.includes('javascript'))) {
+      throw new RemoteSourceError(sourceUrl, `the response content type ${contentType || '(missing)'} is not text`, options.articleRoute);
     }
 
     return await readResponseText(response, sourceUrl, options.maxSourceBytes);
@@ -206,10 +209,10 @@ async function fetchRemoteSource(
     if (error instanceof RemoteSourceError) {
       throw error;
     }
-    if (error instanceof DOMException && error.name === 'AbortError') {
-      throw new RemoteSourceError(sourceUrl, `the request timed out after ${options.sourceTimeoutMs}ms`);
+    if (error instanceof Error && error.name === 'AbortError') {
+      throw new RemoteSourceError(sourceUrl, `the request timed out after ${options.sourceTimeoutMs}ms`, options.articleRoute);
     }
-    throw new RemoteSourceError(sourceUrl, error instanceof Error ? error.message : 'the request failed');
+    throw new RemoteSourceError(sourceUrl, error instanceof Error ? error.message : 'the request failed', options.articleRoute);
   } finally {
     clearTimeout(timeout);
   }
@@ -228,17 +231,19 @@ function getSourceText(
   const allowedSourceHosts = options.allowedSourceHosts ?? DEFAULT_ALLOWED_HOSTS;
   const maxSourceBytes = options.maxSourceBytes ?? DEFAULT_MAX_SOURCE_BYTES;
   const sourceTimeoutMs = options.sourceTimeoutMs ?? DEFAULT_SOURCE_TIMEOUT_MS;
+  const articleRoute = options.articleRoute;
   validateSourceUrl(sourceUrl, allowedSourceHosts);
-  const fetcher = options.fetchSource ?? (url => fetchRemoteSource(url, {
+  const request = fetchRemoteSource(sourceUrl, {
     allowedSourceHosts,
     maxSourceBytes,
     sourceTimeoutMs,
-  }));
-  const request = fetcher(sourceUrl).catch(error => {
+    fetchImpl: options.fetchImpl ?? fetch,
+    articleRoute,
+  }).catch(error => {
     if (error instanceof RemoteSourceError) {
       throw error;
     }
-    throw new RemoteSourceError(sourceUrl, error instanceof Error ? error.message : 'the request failed');
+    throw new RemoteSourceError(sourceUrl, error instanceof Error ? error.message : 'the request failed', articleRoute);
   });
   sourceCache.set(sourceUrl, request);
   return request;

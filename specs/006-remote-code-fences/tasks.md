@@ -161,3 +161,9 @@ error identifies the source and reason while no successful article output is pro
 - All implementation tasks include exact repository paths.
 - Every task follows the required `- [ ] T### [P?] [US?] description` checklist format.
 - Version-specific raw URLs are preferred for reproducible publications; branch URLs remain supported if they pass validation.
+
+## Phase 7: Convergence
+
+- [X] T021 Enforce successful text-response, size-limit, and timeout validation for every remote source path and add response-level tests for HTTP failures, missing or non-text content types, oversized bodies, and timeouts per FR-008 (partial)
+- [X] T022 Pass the current blog route into Markdown rendering and include the article identity in remote-source publication errors per FR-008 and US3/AC1 (partial)
+- [X] T023 Replace callback-only remote-source fixtures with deterministic local HTTP-server scenarios covering response status, content type, size, and timeout behavior per plan: local HTTP validation (partial)

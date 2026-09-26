@@ -45,7 +45,7 @@ async function build(): Promise<void> {
 
   for (const blog of repository.getBlogs()) {
     const markdown = await readFile(blog.markdownPath, 'utf8');
-    const content = await renderMarkdown(markdown, { sourceCache });
+    const content = await renderMarkdown(markdown, { sourceCache, articleRoute: blog.route });
     await writeRoute(
       blog.route,
       distDirectory,
