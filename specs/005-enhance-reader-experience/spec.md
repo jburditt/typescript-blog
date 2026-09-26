@@ -53,8 +53,10 @@ highlighted lines, then verify rendering and code-copy feedback in a browser.
 1. **Given** an article with supported formatted content and code samples, **When** a visitor opens
    it, **Then** the article formatting and language-aware code styling are visible.
 2. **Given** a code sample requesting line numbers or highlighted lines, **When** a visitor views
-   the article, **Then** every requested annotation is visible and line numbering starts at the
-   requested position.
+  the article, **Then** every requested annotation is visible. Highlighted line positions are
+  counted from the first code line, starting at 1; comma-separated positions and inclusive ranges
+  are supported. A requested starting line number sets the displayed number of the first code
+  line without changing which lines are highlighted. Without an offset, numbering starts at 1.
 3. **Given** a code-copy control, **When** a visitor uses it, **Then** the full code sample is
    copied and an accessible success or failure message is announced.
 
@@ -106,8 +108,11 @@ without a diagram enhancer available.
   publication date and use title order to resolve equal dates.
 - **FR-004**: The system MUST render article formatting and supported language-aware code styling
   while preserving readable safe output for unsupported languages.
-- **FR-005**: The system MUST honor requested code line numbering, highlighted line ranges, and
-  starting line offsets in published articles.
+- **FR-005**: The system MUST honor line-number and line-highlight requests for code samples in
+  published articles. Highlight positions MUST be 1-based relative to the first code line and MUST
+  support comma-separated positions and inclusive ranges. A starting-number offset MUST set the
+  displayed number of the first code line without changing the highlighted positions; without an
+  offset, numbering MUST start at 1.
 - **FR-006**: The system MUST provide copy controls for rendered code samples and MUST announce
   both successful and failed copy attempts to assistive technology.
 - **FR-007**: The system MUST provide category filtering that updates visible catalogue entries,
@@ -140,8 +145,9 @@ without a diagram enhancer available.
   expected date-and-title order with complete reader-facing metadata.
 - **SC-002**: In a catalogue containing at least three categories, visitors can isolate any one
   category in three or fewer filter selections and restore all categories in one selection.
-- **SC-003**: For all tested annotated code samples, 100% of requested line numbers, line offsets,
-  and highlighted lines are visible in the published article.
+- **SC-003**: For all tested annotated code samples, 100% of requested line numbers and highlighted
+  positions are visible in the published article; a starting-number offset changes the displayed
+  number of the first code line without shifting highlighted positions.
 - **SC-004**: Every code-copy attempt produces an assistive-technology status message, whether it
   succeeds or fails.
 - **SC-005**: Every social link is reachable by keyboard, exposes an accessible name, and has a

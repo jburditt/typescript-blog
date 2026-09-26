@@ -66,18 +66,22 @@ appropriate diagram enhancer is available.
 **Why this priority**: These behaviors preserve the useful reading experience of the reference
 blog beyond basic text publication.
 
-**Independent Test**: Publish an article containing formatted text, fenced code with line
-directives, and a diagram block; verify the rendered article and code-copy interaction in a
-browser.
+**Independent Test**: Publish an article containing formatted text, fenced code with individual
+and ranged line highlights and a starting-number offset, and a diagram block; verify the rendered
+article and code-copy interaction in a browser.
 
 **Acceptance Scenarios**:
 
 1. **Given** a post with formatted Markdown and supported code fences, **When** a visitor opens
    the post, **Then** the formatted content, syntax styling, requested line numbers, and requested
    line highlights are visible.
-2. **Given** a visible code snippet, **When** a visitor activates its copy control, **Then** the
+2. **Given** a code fence requesting highlighted positions such as `line=2,4-5` and a starting
+  number such as `lineOffset=10`, **When** a visitor views the post, **Then** lines 2, 4, and 5
+  relative to the first code line are highlighted, the range is inclusive, and the first displayed
+  line number is 10. Changing the starting number does not change which lines are highlighted.
+3. **Given** a visible code snippet, **When** a visitor activates its copy control, **Then** the
    snippet text is copied and an accessible success or failure status is announced.
-3. **Given** a post with a diagram block, **When** no diagram enhancer is present, **Then** the
+4. **Given** a post with a diagram block, **When** no diagram enhancer is present, **Then** the
    diagram source remains readable rather than preventing the page from loading.
 
 ### Edge Cases
@@ -109,7 +113,10 @@ browser.
   from discovered content.
 - **FR-006**: The system MUST render article text, supported code formatting directives, and rich
   page content into the shared site presentation while escaping all metadata and dynamic page
-  values.
+  values. Code highlight positions MUST be 1-based relative to the first code line and support
+  comma-separated positions and inclusive ranges. A starting-number offset MUST set the displayed
+  number of the first code line without changing highlighted positions; without an offset, numbering
+  MUST start at 1.
 - **FR-007**: The system MUST publish non-content public assets and generated site assets while
   excluding authoring source files from published assets.
 - **FR-008**: The system MUST provide category filtering, accessible code-copy feedback, and a
@@ -141,7 +148,8 @@ browser.
 - **SC-004**: Every generated internal navigation link and static asset reference resolves
   successfully when tested from the deepest published route.
 - **SC-005**: For articles using supported code directives, 100% of requested line-number and
-  highlighted-line annotations are visible in the published article.
+  highlighted-line annotations are visible in the published article; a starting-number offset
+  changes the displayed number of the first code line without shifting highlighted positions.
 
 ## Assumptions
 
