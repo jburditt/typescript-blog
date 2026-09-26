@@ -6,7 +6,7 @@ import { discoverBlogs, discoverPages } from './lib/discovery.js';
 import { escapeHtml } from './lib/html.js';
 import { renderLayout } from './lib/layout.js';
 import { renderMarkdown } from './lib/markdown.js';
-import { ContentRepository } from './lib/repository.js';
+import { ContentRepository } from '@fullswing/content-model';
 import { renderHomePage, renderSitemapPage } from './lib/renderers.js';
 import { getAssetPrefix, getOutputPath } from './lib/routes.js';
 import { PageRenderFunction } from './lib/types.js';

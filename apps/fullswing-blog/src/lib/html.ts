@@ -10,18 +10,6 @@ export function escapeHtml(value: string): string {
   return value.replace(/[&<>"']/g, character => HTML_ESCAPE_LOOKUP[character]);
 }
 
-export function slugify(value: string): string {
-  return value
-    .trim()
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '');
-}
-
-export function getCategoryDisplayName(category: string): string {
-  return category === 'CSharp' ? 'C#' : category;
-}
-
 export interface CategoryColor {
   background: string;
   text: string;

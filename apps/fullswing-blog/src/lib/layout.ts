@@ -1,4 +1,5 @@
-import { escapeHtml, formatDate, getCategoryColors, getCategoryDisplayName, slugify } from './html.js';
+import { getCategoryDisplayName, slugify } from '@fullswing/content-model';
+import { escapeHtml, formatDate, getCategoryColors } from './html.js';
 import { getRelativeHref } from './routes.js';
 
 export interface LayoutOptions {

@@ -1,7 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { ContentRepository } from '../src/lib/repository.js';
-import { BlogEntry, PageEntry } from '../src/lib/types.js';
+import { BlogEntry, ContentRepository, PageEntry } from '../src/index.js';
 
 const blogEntries: BlogEntry[] = [
   {

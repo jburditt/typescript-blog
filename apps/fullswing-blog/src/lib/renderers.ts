@@ -1,5 +1,5 @@
-import { ContentEntry, RepositoryView } from './types.js';
-import { escapeHtml, formatDate, getCategoryColors, slugify } from './html.js';
+import { ContentEntry, RepositoryView, slugify } from '@fullswing/content-model';
+import { escapeHtml, formatDate, getCategoryColors } from './html.js';
 import { getAssetPrefix, getRelativeHref } from './routes.js';
 
 function renderCategoryFilter(repository: RepositoryView): string {

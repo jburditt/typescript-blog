@@ -1,4 +1,4 @@
-import { getCategoryDisplayName, slugify } from './html.js';
+import { getCategoryDisplayName, slugify } from './categories.js';
 import { BlogEntry, CategorySummary, ContentEntry, PageEntry, RepositoryView } from './types.js';
 
 function sortEntries<T extends ContentEntry>(entries: T[]): T[] {

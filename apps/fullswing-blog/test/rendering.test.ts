@@ -5,9 +5,8 @@ import { createServer, IncomingMessage, ServerResponse } from 'node:http';
 import { renderLayout } from '../src/lib/layout.js';
 import { renderMarkdown } from '../src/lib/markdown.js';
 import { renderHomePage, renderSitemapPage } from '../src/lib/renderers.js';
-import { ContentRepository } from '../src/lib/repository.js';
 import { getRelativeHref } from '../src/lib/routes.js';
-import { BlogEntry, PageEntry } from '../src/lib/types.js';
+import { BlogEntry, ContentRepository, PageEntry } from '@fullswing/content-model';
 
 type FixtureHandler = (request: IncomingMessage, response: ServerResponse) => void;
 

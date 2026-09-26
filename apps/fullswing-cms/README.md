@@ -1,0 +1,14 @@
+fullswing-cms is a content management system for enhanced markdown files, and html pages with optional svelte web components. The content is synced to a configured OneDrive folder. Only admin users can manage the files, so authentication with latest OAuth is required to access all pages except the Login page.
+
+Sitemap:
+Login - A compact login form that loads on all page routes when the user is not authenticated
+Dashboard - A page that lists all of the blogs and pages. At the top show a filter icon that drops down a modal window with filtering options for blogs, pages, date range, author dropdown, etc. Use repository in shared library for database calls
+Add/Edit markdown file - A page with a form to add/edit metadata for the .json sidecar files and a textarea for adding/editing markdown files. The textarea should validate the markdown and have a status bar with green checkbox or red x when validation changes. At the top there is a tab to switch from markdown editing or markdown preview. The preview shows the markdown formatted.
+Add/Edit html file - A blank page for now.
+Configuration - A page to define the configuration values needed for GitHub action run by API, and the OneDrive integration
+
+Layout:
+The layout should include:
+- the fullswing logo, same logo used in fullswing-blog
+- logout icon link, use a logout icon
+- A navigation bar with links for dashboard, add blog/page
