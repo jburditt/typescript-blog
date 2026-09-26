@@ -9,10 +9,14 @@ import { BlogEntry, PageEntry } from '../src/lib/types.js';
 
 test('renderMarkdown should add line numbers and highlighted lines for fenced code blocks', () => {
   const html = renderMarkdown('```typescript line=2 lineOffset=10\nconst one = 1;\nconst two = 2;\n```');
+  const defaultNumberedHtml = renderMarkdown('```typescript\nconst one = 1;\nconst two = 2;\n```');
 
   assert.match(html, /data-line-number="10"/);
   assert.match(html, /data-line-number="11"/);
   assert.match(html, /code-line is-highlighted/);
+  assert.match(defaultNumberedHtml, /class="code-block has-line-numbers"/);
+  assert.match(defaultNumberedHtml, /data-line-number="1"/);
+  assert.match(defaultNumberedHtml, /data-line-number="2"/);
 });
 
 test('renderLayout should escape metadata values before injecting them into the page shell', () => {

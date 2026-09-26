@@ -130,3 +130,4 @@ The sidecar JSON must use route `/page/<basename>`.
 - Add the ability to link/preview OneDrive files
 - Consider moving the markdown and html files to OneDrive, which would require syncing folders
 - Remove category "Bicep" and replace with Azure
+- Make the cateogory pills collapsible, add a Filter icon right aligned on the same row as "Latest Content"

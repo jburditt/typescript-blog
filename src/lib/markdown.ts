@@ -47,7 +47,7 @@ function parseCodeFenceInfo(rawInfo: string | undefined): CodeFenceOptions {
   const tokens = (rawInfo ?? '').split(/\s+/).filter(Boolean);
   const [language = '', ...directives] = tokens;
 
-  let lineNumbers = false;
+  let lineNumbers = true;
   let lineOffset = 1;
   let highlightedLines = new Set<number>();
 
