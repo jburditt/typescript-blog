@@ -145,6 +145,7 @@ The sidecar JSON must use route `/page/<basename>`.
 
 ## To-Do
 
+- Determine if assets should be copied to dist but instead should be pre-rendered static html e.g. assets.js should not be needed and markdowns should be pre-rendered to html
 - Implement pages e.g. angular-blog.html and azure-static-app.html OR use the existing pageRenderers
 - Handle cases where blog filenames are the same in different year folders
 - Remove route from blog.json files
