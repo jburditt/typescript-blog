@@ -154,3 +154,21 @@ The sidecar JSON must use route `/page/<basename>`.
 - Consider moving the markdown and html files to OneDrive, which would require syncing folders
 - Remove category "Bicep" and replace with Azure
 - Make the cateogory pills collapsible, add a Filter icon right aligned on the same row as "Latest Content"
+- Dark theme, match system theme?
+- OneDrive CMS
+- Templating and theming
+- File and database support for content
+- Trigger Github action run by API
+- OAuth for CMS
+- Github action syncs OneDrive folder for content
+- Create npm package for rendering enhanced markdowns
+- Update angular-blog readme and reference this repository
+
+## Roadmap
+
+- fullswing-blog: render sitemap, and blog posts
+- fullswing-blog-file: load blogs from file
+- fullswing-blog-db: load blogs from database
+- fullswing-cms: manage enhanced markdown, html, and typescript pages; trigger Github action run. OAuth, static
+- fullswing-cms-template
+- fullswing-blog-template
