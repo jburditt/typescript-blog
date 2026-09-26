@@ -4,7 +4,7 @@ import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 
 const readRepoFile = (relativePath: string): string =>
-  readFileSync(resolve(process.cwd(), relativePath), 'utf8');
+  readFileSync(resolve(process.cwd(), relativePath), 'utf8').replace(/\r\n/g, '\n');
 
 test('azure deployment config should pin azd to rg-typescript-blog and manage its lifecycle hooks', () => {
   const azureYaml = readRepoFile('azure.yaml');
@@ -18,7 +18,7 @@ test('workflow should use rg-typescript-blog for deploy and destroy automation',
   const workflow = readRepoFile('.github/workflows/deploy.yml');
 
   assert.match(workflow, /^\s+AZURE_RESOURCE_GROUP: rg-typescript-blog$/m);
-  assert.match(workflow, /run: \|\n\s+set -euo pipefail\n\s+\.\/scripts\/ensure-resource-group\.sh\n\s+azd up --no-prompt/);
+  assert.match(workflow, /run: \|\s+set -euo pipefail\s+\.\/scripts\/ensure-resource-group\.sh\s+azd provision --no-prompt[\s\S]*?azd deploy --no-prompt/);
   assert.match(workflow, /az group exists --name "\$AZURE_RESOURCE_GROUP" --output tsv/);
   assert.match(workflow, /\.\/scripts\/delete-resource-group\.sh/);
 });
