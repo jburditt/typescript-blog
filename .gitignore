@@ -1,4 +1,5 @@
 .build/
+.build-infra/
 dist/
 node_modules/
 *.log

@@ -5,7 +5,7 @@ const ISO_DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
 
 function assertString(value: unknown, fieldName: string, filePath: string): string {
   if (typeof value !== 'string' || value.trim().length === 0) {
-    throw new Error(`Metadata file ${filePath} must contain a non-empty string \"${fieldName}\" field.`);
+    throw new Error(`Metadata file ${filePath} must contain a non-empty string "${fieldName}" field.`);
   }
 
   return value;
@@ -13,7 +13,7 @@ function assertString(value: unknown, fieldName: string, filePath: string): stri
 
 function assertCategories(value: unknown, filePath: string): string[] {
   if (!Array.isArray(value)) {
-    throw new Error(`Metadata file ${filePath} must contain a \"categories\" array.`);
+    throw new Error(`Metadata file ${filePath} must contain a "categories" array.`);
   }
 
   if (value.length === 0) {
@@ -34,13 +34,13 @@ function assertCategories(value: unknown, filePath: string): string[] {
 function parseDate(value: string, filePath: string): Date {
   if (!ISO_DATE_PATTERN.test(value)) {
     throw new Error(
-      `Metadata file ${filePath} has an invalid date \"${value}\". Use ISO date format YYYY-MM-DD.`
+      `Metadata file ${filePath} has an invalid date "${value}". Use ISO date format YYYY-MM-DD.`
     );
   }
 
   const parsed = new Date(`${value}T00:00:00.000Z`);
   if (Number.isNaN(parsed.getTime()) || parsed.toISOString().slice(0, 10) !== value) {
-    throw new Error(`Metadata file ${filePath} has an invalid calendar date \"${value}\".`);
+    throw new Error(`Metadata file ${filePath} has an invalid calendar date "${value}".`);
   }
 
   return parsed;
@@ -73,7 +73,7 @@ export async function loadMetadata(
 
   if (route !== expectedRoute) {
     throw new Error(
-      `Metadata file ${filePath} must use route \"${expectedRoute}\" to match its basename, but found \"${route}\".`
+      `Metadata file ${filePath} must use route "${expectedRoute}" to match its basename, but found "${route}".`
     );
   }
 

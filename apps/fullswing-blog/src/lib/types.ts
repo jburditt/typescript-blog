@@ -1,14 +1,4 @@
-export interface ContentMetadata {
-  route: string;
-  title: string;
-  categories: string[];
-  author: string;
-  date: string;
-}
-
-export interface ParsedMetadata extends ContentMetadata {
-  dateValue: Date;
-}
+import { ParsedMetadata } from '@fullswing/content-model';
 
 export interface BlogEntry extends ParsedMetadata {
   kind: 'blog';

@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { mkdtemp, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { loadMetadata } from '../src/lib/metadata.js';
+import { loadMetadata } from '../src/metadata.js';
 
 async function writeTempMetadata(content: string): Promise<string> {
   const root = await mkdtemp(join(tmpdir(), 'typescript-blog-metadata-'));

@@ -1,6 +1,6 @@
 import { readdir } from 'node:fs/promises';
 import { basename, extname, join, relative, sep } from 'node:path';
-import { loadMetadata } from './metadata.js';
+import { loadMetadata } from '@fullswing/content-model';
 import { BlogEntry, PageEntry } from './types.js';
 
 function getSortedBasenames(entries: string[], extension: string): string[] {
