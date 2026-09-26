@@ -12,3 +12,13 @@ The layout should include:
 - the fullswing logo, same logo used in fullswing-blog
 - logout icon link, use a logout icon
 - A navigation bar with links for dashboard, add blog/page
+- Horizontally centered content that will display the page contents depeneding on the route
+
+Database:
+- the database will be a OneDrive folder that contains the blogs and html pages
+
+Technology:
+- typescript, Node, svelte web components, OneDrive integration, latest OAuth
+
+Plan:
+Analyze fullswing-blog/src/lib folder and verify what code should be moved to shared libs/ folder in root folder
