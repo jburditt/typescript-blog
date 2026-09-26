@@ -39,12 +39,13 @@ async function build(): Promise<void> {
   const blogs = await discoverBlogs(blogDirectory);
   const pages = await discoverPages(sourcePagesDirectory, compiledPagesDirectory);
   const repository = new ContentRepository(blogs, pages);
+  const sourceCache = new Map<string, Promise<string>>();
 
   await copyProjectAssets(publicDirectory, sourceAssetsDirectory, distDirectory);
 
   for (const blog of repository.getBlogs()) {
     const markdown = await readFile(blog.markdownPath, 'utf8');
-    const content = renderMarkdown(markdown);
+    const content = await renderMarkdown(markdown, { sourceCache });
     await writeRoute(
       blog.route,
       distDirectory,

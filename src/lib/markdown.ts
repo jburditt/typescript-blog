@@ -11,11 +11,33 @@ import 'prismjs/components/prism-bash.js';
 import { Marked, Tokens } from 'marked';
 import { escapeHtml } from './html.js';
 
+const DEFAULT_ALLOWED_HOSTS = new Set(['raw.githubusercontent.com']);
+const DEFAULT_MAX_SOURCE_BYTES = 1_000_000;
+const DEFAULT_SOURCE_TIMEOUT_MS = 10_000;
+
+type SourceFetcher = (url: string) => Promise<string>;
+
+export interface MarkdownRenderOptions {
+  fetchSource?: SourceFetcher;
+  sourceCache?: Map<string, Promise<string>>;
+  allowedSourceHosts?: ReadonlySet<string>;
+  maxSourceBytes?: number;
+  sourceTimeoutMs?: number;
+}
+
 interface CodeFenceOptions {
   language: string;
   lineNumbers: boolean;
   lineOffset: number;
   highlightedLines: Set<number>;
+  sourceUrl?: string;
+}
+
+export class RemoteSourceError extends Error {
+  constructor(readonly sourceUrl: string, reason: string) {
+    super(`Unable to load remote code source ${sourceUrl}: ${reason}`);
+    this.name = 'RemoteSourceError';
+  }
 }
 
 function parseHighlightedLines(value: string): Set<number> {
@@ -50,6 +72,7 @@ function parseCodeFenceInfo(rawInfo: string | undefined): CodeFenceOptions {
   let lineNumbers = true;
   let lineOffset = 1;
   let highlightedLines = new Set<number>();
+  let sourceUrl: string | undefined;
 
   for (const directive of directives) {
     if (directive === 'lineNumbers') {
@@ -57,7 +80,13 @@ function parseCodeFenceInfo(rawInfo: string | undefined): CodeFenceOptions {
       continue;
     }
 
-    const [key, value] = directive.split('=');
+    const separatorIndex = directive.indexOf('=');
+    if (separatorIndex < 1) {
+      continue;
+    }
+
+    const key = directive.slice(0, separatorIndex);
+    const value = directive.slice(separatorIndex + 1);
     if (!value) {
       continue;
     }
@@ -71,6 +100,8 @@ function parseCodeFenceInfo(rawInfo: string | undefined): CodeFenceOptions {
         lineOffset = parsedOffset;
         lineNumbers = true;
       }
+    } else if (key === 'source') {
+      sourceUrl = value;
     }
   }
 
@@ -79,6 +110,7 @@ function parseCodeFenceInfo(rawInfo: string | undefined): CodeFenceOptions {
     lineNumbers,
     lineOffset,
     highlightedLines,
+    sourceUrl,
   };
 }
 
@@ -91,32 +123,158 @@ function highlightCode(code: string, language: string): string {
   return Prism.highlight(code, prismLanguage, language);
 }
 
-function renderCodeBlock(code: string, rawInfo: string | undefined): string {
-  const options = parseCodeFenceInfo(rawInfo);
-
-  if (options.language === 'mermaid') {
-    return `<pre class="mermaid">${escapeHtml(code.trimEnd())}</pre>`;
+function validateSourceUrl(sourceUrl: string, allowedHosts: ReadonlySet<string>): URL {
+  let parsedUrl: URL;
+  try {
+    parsedUrl = new URL(sourceUrl);
+  } catch {
+    throw new RemoteSourceError(sourceUrl, 'the URL is malformed');
   }
 
-  const normalizedCode = code.replace(/\r\n/g, '\n').replace(/\n$/, '');
-  const highlighted = highlightCode(normalizedCode, options.language);
+  if (parsedUrl.protocol !== 'https:' || !allowedHosts.has(parsedUrl.hostname)) {
+    throw new RemoteSourceError(sourceUrl, 'the protocol or host is not approved');
+  }
+
+  return parsedUrl;
+}
+
+async function readResponseText(response: Response, sourceUrl: string, maxBytes: number): Promise<string> {
+  const contentLength = response.headers.get('content-length');
+  if (contentLength && Number.parseInt(contentLength, 10) > maxBytes) {
+    throw new RemoteSourceError(sourceUrl, `the response exceeds the ${maxBytes}-byte limit`);
+  }
+
+  if (!response.body) {
+    const text = await response.text();
+    if (new TextEncoder().encode(text).byteLength > maxBytes) {
+      throw new RemoteSourceError(sourceUrl, `the response exceeds the ${maxBytes}-byte limit`);
+    }
+    return text;
+  }
+
+  const reader = response.body.getReader();
+  const chunks: Uint8Array[] = [];
+  let totalBytes = 0;
+
+  try {
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) {
+        break;
+      }
+      totalBytes += value.byteLength;
+      if (totalBytes > maxBytes) {
+        throw new RemoteSourceError(sourceUrl, `the response exceeds the ${maxBytes}-byte limit`);
+      }
+      chunks.push(value);
+    }
+  } finally {
+    reader.releaseLock();
+  }
+
+  const bytes = new Uint8Array(totalBytes);
+  let offset = 0;
+  for (const chunk of chunks) {
+    bytes.set(chunk, offset);
+    offset += chunk.byteLength;
+  }
+
+  return new TextDecoder().decode(bytes);
+}
+
+async function fetchRemoteSource(
+  sourceUrl: string,
+  options: Required<Pick<MarkdownRenderOptions, 'allowedSourceHosts' | 'maxSourceBytes' | 'sourceTimeoutMs'>>,
+): Promise<string> {
+  validateSourceUrl(sourceUrl, options.allowedSourceHosts);
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), options.sourceTimeoutMs);
+
+  try {
+    const response = await fetch(sourceUrl, { signal: controller.signal });
+    if (!response.ok) {
+      throw new RemoteSourceError(sourceUrl, `the server returned HTTP ${response.status}`);
+    }
+
+    const contentType = response.headers.get('content-type') ?? '';
+    if (contentType && !contentType.startsWith('text/') && !contentType.includes('json') && !contentType.includes('javascript')) {
+      throw new RemoteSourceError(sourceUrl, `the response content type ${contentType} is not text`);
+    }
+
+    return await readResponseText(response, sourceUrl, options.maxSourceBytes);
+  } catch (error) {
+    if (error instanceof RemoteSourceError) {
+      throw error;
+    }
+    if (error instanceof DOMException && error.name === 'AbortError') {
+      throw new RemoteSourceError(sourceUrl, `the request timed out after ${options.sourceTimeoutMs}ms`);
+    }
+    throw new RemoteSourceError(sourceUrl, error instanceof Error ? error.message : 'the request failed');
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+
+function getSourceText(
+  sourceUrl: string,
+  options: MarkdownRenderOptions,
+  sourceCache: Map<string, Promise<string>>,
+): Promise<string> {
+  const existing = sourceCache.get(sourceUrl);
+  if (existing) {
+    return existing;
+  }
+
+  const allowedSourceHosts = options.allowedSourceHosts ?? DEFAULT_ALLOWED_HOSTS;
+  const maxSourceBytes = options.maxSourceBytes ?? DEFAULT_MAX_SOURCE_BYTES;
+  const sourceTimeoutMs = options.sourceTimeoutMs ?? DEFAULT_SOURCE_TIMEOUT_MS;
+  validateSourceUrl(sourceUrl, allowedSourceHosts);
+  const fetcher = options.fetchSource ?? (url => fetchRemoteSource(url, {
+    allowedSourceHosts,
+    maxSourceBytes,
+    sourceTimeoutMs,
+  }));
+  const request = fetcher(sourceUrl).catch(error => {
+    if (error instanceof RemoteSourceError) {
+      throw error;
+    }
+    throw new RemoteSourceError(sourceUrl, error instanceof Error ? error.message : 'the request failed');
+  });
+  sourceCache.set(sourceUrl, request);
+  return request;
+}
+
+function renderCodeBlock(code: string, rawInfo: string | undefined): string {
+  const fenceOptions = parseCodeFenceInfo(rawInfo);
+  const sourceCode = code;
+
+  if (fenceOptions.language === 'mermaid') {
+    return `<pre class="mermaid">${escapeHtml(sourceCode.trimEnd())}</pre>`;
+  }
+
+  const normalizedCode = sourceCode.replace(/\r\n/g, '\n').replace(/\n$/, '');
+  const highlighted = highlightCode(normalizedCode, fenceOptions.language);
   const lines = highlighted.split('\n');
   const codeLines = lines.map((line, index) => {
-    const lineNumber = options.lineOffset + index;
-    const attributes = [`class="code-line${options.highlightedLines.has(index + 1) ? ' is-highlighted' : ''}"`];
-    if (options.lineNumbers) {
+    const lineNumber = fenceOptions.lineOffset + index;
+    const attributes = [`class="code-line${fenceOptions.highlightedLines.has(index + 1) ? ' is-highlighted' : ''}"`];
+    if (fenceOptions.lineNumbers) {
       attributes.push(`data-line-number="${lineNumber}"`);
     }
 
     return `<span ${attributes.join(' ')}>${line || ' '}</span>`;
   }).join('');
 
-  const languageClass = options.language ? ` language-${escapeHtml(options.language)}` : '';
-  const preClass = options.lineNumbers ? 'code-block has-line-numbers' : 'code-block';
+  const languageClass = fenceOptions.language ? ` language-${escapeHtml(fenceOptions.language)}` : '';
+  const preClass = fenceOptions.lineNumbers ? 'code-block has-line-numbers' : 'code-block';
+  const attribution = fenceOptions.sourceUrl
+    ? `<a class="code-source" href="${escapeHtml(fenceOptions.sourceUrl)}" rel="noreferrer">Source</a>`
+    : '';
 
   return [
-    `<pre class="${preClass}" data-language="${escapeHtml(options.language || 'plain-text')}">`,
+    `<pre class="${preClass}" data-language="${escapeHtml(fenceOptions.language || 'plain-text')}">`,
     '<button type="button" class="copy-code" data-copy-code>Copy</button>',
+    attribution,
     `<code class="${languageClass.trim()}">`,
     codeLines,
     '</code>',
@@ -124,18 +282,28 @@ function renderCodeBlock(code: string, rawInfo: string | undefined): string {
   ].join('');
 }
 
-const marked = new Marked({
-  gfm: true,
-});
+export async function renderMarkdown(source: string, options: MarkdownRenderOptions = {}): Promise<string> {
+  const sourceCache = options.sourceCache ?? new Map<string, Promise<string>>();
+  const marked = new Marked({
+    gfm: true,
+  });
 
-marked.use({
-  renderer: {
-    code(token: Tokens.Code): string {
-      return renderCodeBlock(token.text, token.lang);
+  marked.use({
+    async: true,
+    walkTokens: async token => {
+      if (token.type === 'code') {
+        const sourceUrl = parseCodeFenceInfo(token.lang).sourceUrl;
+        if (sourceUrl) {
+          token.text = await getSourceText(sourceUrl, options, sourceCache);
+        }
+      }
     },
-  },
-});
+    renderer: {
+      code(token: Tokens.Code): string {
+        return renderCodeBlock(token.text, token.lang);
+      },
+    },
+  });
 
-export function renderMarkdown(source: string): string {
-  return marked.parse(source) as string;
+  return await marked.parse(source, { async: true }) as string;
 }

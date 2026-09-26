@@ -101,6 +101,7 @@ The sidecar JSON must use route `/page/<basename>`.
 - GFM Markdown rendering
 - Prism-based syntax highlighting
 - Server-rendered line numbers and line highlighting for fenced code blocks using info-string directives such as `line=2-4 lineOffset=10`
+- Remote source code blocks using `source=https://raw.githubusercontent.com/...` fence directives; use version-specific URLs when reproducible output matters
 - Minimal client-side category filtering and copy-to-clipboard behavior
 - Header social navigation uses accessible GitHub and LinkedIn SVG icons with lighter resting fills and darker hover/focus states
 - Mermaid diagrams: Pages containing Mermaid blocks load the pinned Mermaid CDN runtime and initialize it with restrictive defaults. Blocks render from escaped `<pre class="mermaid">...</pre>` source, while `assets/site.js` auto-runs `window.mermaid.run({ nodes })` or exposes `window.typescriptBlog.enhanceMermaid(enhancer)` for a host that loads Mermaid later. Enhancement failures leave the source readable and are isolated per block.
@@ -109,6 +110,7 @@ The sidecar JSON must use route `/page/<basename>`.
 
 - Mermaid is loaded from a pinned CDN URL rather than bundled into the generator. If the runtime is unavailable, the generated HTML remains readable source. Hosts control any alternate loading, configuration, security policy, and CSP. Authors should add Mermaid `accTitle` and `accDescr` entries when a diagram conveys important information.
 - Syntax highlighting supports the Prism languages imported in `src/lib/markdown.ts`. Additional languages can be added there if needed.
+- Remote code sources are retrieved during the build from approved HTTPS hosts, rendered into the static page, and exposed with a source link. Unavailable, unsafe, non-text, or oversized sources fail the build rather than producing an incomplete block.
 
 ## Azure Deployments
 

@@ -7,9 +7,9 @@ import { ContentRepository } from '../src/lib/repository.js';
 import { getRelativeHref } from '../src/lib/routes.js';
 import { BlogEntry, PageEntry } from '../src/lib/types.js';
 
-test('renderMarkdown should add line numbers and highlighted lines for fenced code blocks', () => {
-  const html = renderMarkdown('```typescript line=2 lineOffset=10\nconst one = 1;\nconst two = 2;\n```');
-  const defaultNumberedHtml = renderMarkdown('```typescript\nconst one = 1;\nconst two = 2;\n```');
+test('renderMarkdown should add line numbers and highlighted lines for fenced code blocks', async () => {
+  const html = await renderMarkdown('```typescript line=2 lineOffset=10\nconst one = 1;\nconst two = 2;\n```');
+  const defaultNumberedHtml = await renderMarkdown('```typescript\nconst one = 1;\nconst two = 2;\n```');
 
   assert.match(html, /data-line-number="10"/);
   assert.match(html, /data-line-number="11"/);
@@ -20,8 +20,8 @@ test('renderMarkdown should add line numbers and highlighted lines for fenced co
   assert.doesNotMatch(defaultNumberedHtml, /<\/span>\s+<span class="code-line/);
 });
 
-test('renderMarkdown should highlight comma-separated lines and ranges', () => {
-  const html = renderMarkdown('```typescript line=1,3-4\nconst one = 1;\nconst two = 2;\nconst three = 3;\nconst four = 4;\n```');
+test('renderMarkdown should highlight comma-separated lines and ranges', async () => {
+  const html = await renderMarkdown('```typescript line=1,3-4\nconst one = 1;\nconst two = 2;\nconst three = 3;\nconst four = 4;\n```');
   const lineClasses = [...html.matchAll(/class="(code-line(?: is-highlighted)?)"/g)]
     .map((match) => match[1]);
 
@@ -33,11 +33,94 @@ test('renderMarkdown should highlight comma-separated lines and ranges', () => {
   ]);
 });
 
-test('renderMarkdown should preserve escaped Mermaid source without code controls', () => {
-  const html = renderMarkdown('```mermaid\ngraph TD;\n<script>alert(1)</script>\n```');
+test('renderMarkdown should preserve escaped Mermaid source without code controls', async () => {
+  const html = await renderMarkdown('```mermaid\ngraph TD;\n<script>alert(1)</script>\n```');
 
   assert.match(html, /<pre class="mermaid">graph TD;\n&lt;script&gt;alert\(1\)&lt;\/script&gt;<\/pre>/);
   assert.doesNotMatch(html, /data-copy-code/);
+});
+
+test('renderMarkdown should render a fetched source with existing code directives', async () => {
+  const sourceUrl = 'https://raw.githubusercontent.com/example/project/abc123/app.ts';
+  const html = await renderMarkdown(
+    `\`\`\`typescript source=${sourceUrl} line=2 lineOffset=10\n\`\`\``,
+    { fetchSource: async url => {
+      assert.equal(url, sourceUrl);
+      return 'const one = 1;\nconst two = 2;\n';
+    } },
+  );
+
+  assert.match(html, /<span class="token keyword">const<\/span> one/);
+  assert.match(html, /data-line-number="10"/);
+  assert.match(html, /data-line-number="11"/);
+  assert.match(html, /code-line is-highlighted/);
+  assert.match(html, new RegExp(`href="${sourceUrl.replaceAll('.', '\\.')}`));
+});
+
+test('renderMarkdown should cache fetched sources and escape source attribution', async () => {
+  const sourceUrl = 'https://raw.githubusercontent.com/example/project/abc123/app.ts?file=app.ts&mode=raw';
+  let fetchCount = 0;
+  const html = await renderMarkdown(
+    `\`\`\`typescript source=${sourceUrl}\n\`\`\`\n\n\`\`\`typescript source=${sourceUrl}\n\`\`\``,
+    { fetchSource: async () => {
+      fetchCount += 1;
+      return '<script>alert(1)</script>';
+    } },
+  );
+
+  assert.equal(fetchCount, 1);
+  assert.equal((html.match(/&lt;/g) ?? []).length, 4);
+  assert.match(html, /file=app\.ts&amp;mode=raw/);
+  assert.doesNotMatch(html, /<script>alert/);
+});
+
+test('renderMarkdown should reject malformed and disallowed source URLs before fetching', async () => {
+  let fetchCount = 0;
+  const fetchSource = async () => {
+    fetchCount += 1;
+    return 'unreachable';
+  };
+
+  await assert.rejects(
+    renderMarkdown('```typescript source=not-a-url\n```', { fetchSource }),
+    /the URL is malformed/,
+  );
+  await assert.rejects(
+    renderMarkdown('```typescript source=http://example.com/app.ts\n```', { fetchSource }),
+    /the protocol or host is not approved/,
+  );
+  assert.equal(fetchCount, 0);
+});
+
+test('renderMarkdown should report remote fetch failures with the source URL', async () => {
+  const sourceUrl = 'https://raw.githubusercontent.com/example/project/abc123/app.ts';
+
+  await assert.rejects(
+    renderMarkdown(`\`\`\`typescript source=${sourceUrl}\n\`\`\``, {
+      fetchSource: async () => {
+        throw new Error('fixture unavailable');
+      },
+    }),
+    new RegExp(`Unable to load remote code source ${sourceUrl}: fixture unavailable`),
+  );
+});
+
+test('renderMarkdown should reuse a shared source cache across renders', async () => {
+  const sourceUrl = 'https://raw.githubusercontent.com/example/project/abc123/app.ts';
+  const sourceCache = new Map<string, Promise<string>>();
+  let fetchCount = 0;
+  const options = {
+    sourceCache,
+    fetchSource: async () => {
+      fetchCount += 1;
+      return 'const shared = true;';
+    },
+  };
+
+  await renderMarkdown(`\`\`\`typescript source=${sourceUrl}\n\`\`\``, options);
+  await renderMarkdown(`\`\`\`typescript source=${sourceUrl}\n\`\`\``, options);
+
+  assert.equal(fetchCount, 1);
 });
 
 test('renderLayout should escape metadata values before injecting them into the page shell', () => {
